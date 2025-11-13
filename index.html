@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Coin Clash – Provably Fair Coin + Crash Hybrid</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #050712;
+      --panel: #0c1224;
+      --accent: #4aa3ff;
+      --accent-soft: rgba(74,163,255,0.2);
+      --text: #e9f2ff;
+      --muted: #9aa7c2;
+      --win: #2ecc71;
+      --lose: #ff5c5c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, #151b3a 0, #050712 55%);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .wrap {
+      width: min(420px, 96vw);
+      background: linear-gradient(180deg, #11172b, #060915);
+      border-radius: 16px;
+      box-shadow: 0 18px 60px rgba(0,0,0,0.8);
+      padding: 18px 18px 16px;
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    h1 {
+      margin: 0 0 4px;
+      text-align: center;
+      font-size: 1.4rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .subtitle {
+      text-align: center;
+      font-size: .78rem;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      gap: 8px;
+    }
+    .stat {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: radial-gradient(circle at top left, #1b2440 0, #070b16 60%);
+      border: 1px solid rgba(255,255,255,0.05);
+      font-size: .78rem;
+    }
+    .stat-label {
+      color: var(--muted);
+      font-size: .7rem;
+      margin-bottom: 2px;
+    }
+    .stat-value {
+      font-weight: 600;
+      letter-spacing: .03em;
+    }
+    .mult-box {
+      margin-top: 4px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: linear-gradient(120deg, #111a33, #071426);
+      border: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .mult-label {
+      font-size: .75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .18em;
+    }
+    .mult-value {
+      font-size: 2.4rem;
+      font-weight: 800;
+      letter-spacing: .05em;
+    }
+    .mult-bar {
+      position: relative;
+      width: 100%;
+      height: 6px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .mult-fill {
+      position: absolute;
+      inset: 0;
+      transform-origin: left center;
+      transform: scaleX(0.1);
+      background: linear-gradient(90deg, #4aa3ff, #2ecc71);
+    }
+    .status-line {
+      margin-top: 6px;
+      font-size: .76rem;
+      color: var(--muted);
+      min-height: 1.2em;
+    }
+    .status-line strong {
+      color: var(--accent);
+    }
+    .coin-box {
+      margin-top: 14px;
+      display: flex;
+      justify-content: center;
+    }
+    .coin {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.5s ease;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.04),
+        0 18px 35px rgba(0,0,0,0.75);
+    }
+    .coin-face {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backface-visibility: hidden;
+      font-weight: 700;
+      letter-spacing: .08em;
+      font-size: .9rem;
+      text-transform: uppercase;
+    }
+    .coin-heads {
+      background: radial-gradient(circle at 30% 25%, #f7fafc 0, #d2dde8 40%, #7c8fb0 85%);
+      color: #101525;
+      border: 2px solid rgba(255,255,255,0.75);
+    }
+    .coin-tails {
+      background: radial-gradient(circle at 30% 25%, #ffd9aa 0, #e4a767 40%, #86552f 85%);
+      color: #1b0f08;
+      border: 2px solid rgba(255, 205, 140, 0.7);
+      transform: rotateY(180deg);
+    }
+    .coin-edge-ring {
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      border: 3px solid rgba(0,0,0,0.55);
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,0.12);
+      pointer-events: none;
+    }
+    .coin.flipping {
+      animation: spin 0.6s linear infinite;
+    }
+    .coin.show-heads {
+      transform: rotateY(0deg);
+    }
+    .coin.show-tails {
+      transform: rotateY(180deg);
+    }
+    @keyframes spin {
+      from { transform: rotateY(0deg); }
+      to { transform: rotateY(720deg); }
+    }
+    .controls {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .field {
+      text-align: left;
+    }
+    .field label {
+      font-size: .75rem;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 3px;
+    }
+    .field input {
+      width: 100%;
+      padding: 7px 9px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: #050713;
+      color: #e9f2ff;
+      font-size: .85rem;
+      outline: none;
+    }
+    .field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent-soft);
+    }
+    .deposit-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    .deposit-row input {
+      flex: 1;
+    }
+    button.small-btn {
+      padding: 7px 10px;
+      font-size: .72rem;
+      border-radius: 8px;
+      background: rgba(74,163,255,0.12);
+      color: var(--accent);
+      border: 1px solid rgba(74,163,255,0.7);
+      box-shadow: none;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .reset-btn {
+      margin-top: 4px;
+      width: 100%;
+      background: rgba(255,92,92,0.12);
+      color: #ff8585;
+      border-color: rgba(255,92,92,0.85);
+    }
+    .side-choices,
+    .mode-choices {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 10px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .side-choices label,
+    .mode-choices label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+    .side-choices input,
+    .mode-choices input {
+      width: auto;
+    }
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 9px 10px;
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      font-size: .78rem;
+      cursor: pointer;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s;
+    }
+    button:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+    #startBtn {
+      background: var(--accent);
+      color: #011018;
+      box-shadow: 0 10px 24px rgba(74,163,255,0.5);
+    }
+    #cashoutBtn {
+      background: var(--win);
+      color: #01150b;
+      display: none;
+      box-shadow: 0 10px 24px rgba(46,204,113,0.45);
+    }
+    #startBtn[disabled],
+    #cashoutBtn[disabled] {
+      opacity: 0.6;
+      cursor: default;
+      box-shadow: none;
+    }
+    .pf-footer {
+      margin-top: 12px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      font-size: .68rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .pf-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .pf-row span {
+      word-break: break-all;
+    }
+    .pf-label {
+      color: rgba(155, 178, 214, 0.9);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>COIN CLASH</h1>
+    <div class="subtitle">Progressive multiplier. Single flip decision. Fully provably fair.</div>
+
+    <div class="row">
+      <div class="stat">
+        <div class="stat-label">Balance</div>
+        <div class="stat-value"><span id="balanceDisplay">0.00</span> credits</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Bet Amount</div>
+        <div class="stat-value"><span id="currentBetLabel">0.00</span> credits</div>
+      </div>
+    </div>
+
+    <div class="mult-box">
+      <div class="mult-label">Live Multiplier</div>
+      <div class="mult-value" id="multiplierDisplay">1.00x</div>
+      <div class="mult-bar">
+        <div class="mult-fill" id="multFill"></div>
+      </div>
+      <div class="status-line" id="statusLine">Deposit to start playing…</div>
+    </div>
+
+    <div class="coin-box">
+      <div class="coin show-heads" id="coin">
+        <div class="coin-edge-ring"></div>
+        <div class="coin-face coin-heads">HEADS</div>
+        <div class="coin-face coin-tails">TAILS</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="field">
+        <label for="depositInput">Deposit (credits)</label>
+        <div class="deposit-row">
+          <input id="depositInput" type="number" min="0.1" step="0.01" value="100.00" />
+          <button type="button" id="depositBtn" class="small-btn">Add</button>
+        </div>
+        <button type="button" id="resetBalanceBtn" class="small-btn reset-btn">
+          Reset Balance
+        </button>
+
+        <label for="betInput" style="margin-top:8px;">Bet (credits)</label>
+        <input id="betInput" type="number" min="0.1" max="20000" step="0.01" value="1.00" />
+
+        <div class="side-choices">
+          <label><input type="radio" name="side" value="Heads" checked /> Heads</label>
+          <label><input type="radio" name="side" value="Tails" /> Tails</label>
+          <label><input type="radio" name="side" value="Random" /> Random</label>
+        </div>
+        <div class="mode-choices">
+          <label><input type="radio" name="mode" value="Auto" checked /> Auto target</label>
+          <label><input type="radio" name="mode" value="Manual" /> Manual cash out</label>
+        </div>
+      </div>
+      <div class="buttons">
+        <button id="startBtn">Start Round</button>
+        <button id="cashoutBtn">Cash Out</button>
+      </div>
+    </div>
+
+    <div class="pf-footer">
+      <div><strong>Provably Fair Snapshot</strong></div>
+      <div class="pf-row">
+        <span class="pf-label">Server Seed Hash:</span>
+        <span id="serverSeedHash">loading…</span>
+      </div>
+      <div class="pf-row">
+        <span class="pf-label">Client Seed:</span>
+        <span id="clientSeedLabel">–</span>
+      </div>
+      <div class="pf-row">
+        <span class="pf-label">Nonce (this round):</span>
+        <span id="nonceLabel">0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PREMIUM / RAINBET-STYLE SOUND EFFECTS -->
+  <audio id="sfxClick"  src="sfx_click_premium.wav" preload="auto"></audio>
+  <audio id="sfxCoin"   src="sfx_coinflip.wav" preload="auto"></audio>
+  <audio id="sfxWhoosh" src="sfx_whoosh_rising.wav" preload="auto"></audio>
+  <audio id="sfxWin"    src="sfx_jackpot.wav" preload="auto"></audio>
+  <audio id="sfxBust"   src="sfx_bust_premium.wav" preload="auto"></audio>
+
+<script>
+  const API = "http://127.0.0.1:8000"; // change when you deploy
+
+  const MIN_BET = 0.1;
+  const MAX_BET = 20000;
+
+  // ---- STATE ----
+  let balance = parseFloat(localStorage.getItem("coinclash_balance") || "0");
+  let isRunning = false;
+  let targetBust = 1.0;
+  let currentMult = 1.0;
+  let multTimer = null;
+  let autoTarget = null;
+  let hasFlipped = false;
+
+  // Provably fair seeds
+  let clientSeed = localStorage.getItem("coinclash_client_seed");
+  if (!clientSeed) {
+    clientSeed = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+      .map(b => b.toString(16).padStart(2, "0"))
+      .join("");
+    localStorage.setItem("coinclash_client_seed", clientSeed);
+  }
+  let nonce = parseInt(localStorage.getItem("coinclash_nonce") || "0", 10);
+
+  let storedSide = localStorage.getItem("coinclash_side") || "Heads";
+  let storedMode = localStorage.getItem("coinclash_mode") || "Auto";
+
+  // ---- ELEMENTS ----
+  const balanceDisplay = document.getElementById("balanceDisplay");
+  const betInput = document.getElementById("betInput");
+  const currentBetLabel = document.getElementById("currentBetLabel");
+  const multiplierDisplay = document.getElementById("multiplierDisplay");
+  const multFill = document.getElementById("multFill");
+  const statusLine = document.getElementById("statusLine");
+  const coin = document.getElementById("coin");
+  const startBtn = document.getElementById("startBtn");
+  const cashoutBtn = document.getElementById("cashoutBtn");
+  const serverSeedHashEl = document.getElementById("serverSeedHash");
+  const clientSeedLabel = document.getElementById("clientSeedLabel");
+  const nonceLabel = document.getElementById("nonceLabel");
+  const sideInputs = document.querySelectorAll('input[name="side"]');
+  const modeInputs = document.querySelectorAll('input[name="mode"]');
+  const depositInput = document.getElementById("depositInput");
+  const depositBtn = document.getElementById("depositBtn");
+  const resetBalanceBtn = document.getElementById("resetBalanceBtn");
+
+  // 🎵 SOUND ELEMENTS
+  const sfxClick  = document.getElementById("sfxClick");
+  const sfxCoin   = document.getElementById("sfxCoin");
+  const sfxWhoosh = document.getElementById("sfxWhoosh");
+  const sfxWin    = document.getElementById("sfxWin");
+  const sfxBust   = document.getElementById("sfxBust");
+
+  function playSfx(audio) {
+    if (!audio) return;
+    try {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.play();
+    } catch (e) {
+      // ignore autoplay errors
+    }
+  }
+
+  function startWhoosh() {
+    if (!sfxWhoosh) return;
+    try {
+      sfxWhoosh.loop = true;
+      sfxWhoosh.currentTime = 0;
+      sfxWhoosh.play();
+    } catch (e) {}
+  }
+
+  function stopWhoosh() {
+    if (!sfxWhoosh) return;
+    try {
+      sfxWhoosh.pause();
+      sfxWhoosh.currentTime = 0;
+      sfxWhoosh.loop = false;
+    } catch (e) {}
+  }
+
+  // ---- INIT ----
+  function refreshPFLabels() {
+    clientSeedLabel.textContent = clientSeed;
+    nonceLabel.textContent = String(nonce);
+  }
+
+  function setBalanceDisplay() {
+    balanceDisplay.textContent = balance.toFixed(2);
+    localStorage.setItem("coinclash_balance", String(balance));
+  }
+
+  function setBetLabel() {
+    const bet = Number(betInput.value) || 0;
+    currentBetLabel.textContent = bet.toFixed(2);
+  }
+
+  function getSelectedSide() {
+    let val = "Heads";
+    sideInputs.forEach(input => { if (input.checked) val = input.value; });
+    return val;
+  }
+
+  function getSelectedMode() {
+    let val = "Auto";
+    modeInputs.forEach(input => { if (input.checked) val = input.value; });
+    return val;
+  }
+
+  function applyStoredChoices() {
+    sideInputs.forEach(input => {
+      if (input.value === storedSide) input.checked = true;
+    });
+    modeInputs.forEach(input => {
+      if (input.value === storedMode) input.checked = true;
+    });
+  }
+
+  sideInputs.forEach(input => {
+    input.addEventListener("change", () => {
+      storedSide = getSelectedSide();
+      localStorage.setItem("coinclash_side", storedSide);
+      playSfx(sfxClick);
+    });
+  });
+
+  modeInputs.forEach(input => {
+    input.addEventListener("change", () => {
+      storedMode = getSelectedMode();
+      localStorage.setItem("coinclash_mode", storedMode);
+      playSfx(sfxClick);
+    });
+  });
+
+  depositBtn.addEventListener("click", () => {
+    playSfx(sfxClick);
+    let amount = Number(depositInput.value);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      statusLine.textContent = "Enter a valid deposit amount.";
+      return;
+    }
+    amount = Math.max(0.1, amount);
+    balance += amount;
+    setBalanceDisplay();
+    statusLine.textContent = `Deposited ${amount.toFixed(2)} credits.`;
+  });
+
+  resetBalanceBtn.addEventListener("click", () => {
+    playSfx(sfxClick);
+    if (!confirm("Are you sure you want to reset your balance to 0?")) return;
+    balance = 0;
+    setBalanceDisplay();
+    statusLine.textContent = "Balance reset to 0. Deposit to start playing.";
+  });
+
+  setBalanceDisplay();
+  setBetLabel();
+  refreshPFLabels();
+  applyStoredChoices();
+
+  fetch(API + "/seed")
+    .then(res => res.json())
+    .then(data => {
+      serverSeedHashEl.textContent = data.serverSeedHash;
+    })
+    .catch(() => {
+      serverSeedHashEl.textContent = "error contacting backend";
+    });
+
+  function resetCoin(side) {
+    coin.classList.remove("flipping", "show-heads", "show-tails");
+    coin.classList.add(side === "Heads" ? "show-heads" : "show-tails");
+  }
+
+  function startSpin() {
+    coin.classList.remove("show-heads", "show-tails");
+    coin.classList.add("flipping");
+    startWhoosh();
+  }
+
+  function stopSpin(side) {
+    coin.classList.remove("flipping");
+    coin.classList.add(side === "Heads" ? "show-heads" : "show-tails");
+    stopWhoosh();
+    playSfx(sfxCoin);
+  }
+
+  function endRoundCleanup() {
+    isRunning = false;
+    clearInterval(multTimer);
+    multTimer = null;
+    nonce += 1;
+    localStorage.setItem("coinclash_nonce", String(nonce));
+    refreshPFLabels();
+    hasFlipped = false;
+    autoTarget = null;
+
+    startBtn.disabled = false;
+    startBtn.textContent = "Start Round";
+    const mode = getSelectedMode();
+    cashoutBtn.style.display = mode === "Manual" ? "block" : "none";
+    cashoutBtn.disabled = false;
+
+    if (balance <= 0) {
+      statusLine.textContent = "Balance is 0. Deposit to keep playing.";
+    }
+  }
+
+  function chooseAutoTarget(bust) {
+    const minTarget = 1.2;
+    const upperCap = 10.0;
+    const maxReasonable = Math.min(upperCap, Math.max(minTarget, bust - 0.15));
+    const low = minTarget;
+    const high = maxReasonable;
+
+    if (high <= low) return minTarget;
+    const u = Math.random();
+    return low + u * (high - low);
+  }
+
+  async function performCashout(triggeredByAuto) {
+    if (!isRunning || hasFlipped) return;
+    hasFlipped = true;
+
+    const bet = Number(betInput.value);
+    let sideChoice = getSelectedSide();
+
+    if (sideChoice === "Random") {
+      sideChoice = Math.random() < 0.5 ? "Heads" : "Tails";
+      statusLine.textContent = `Randomly picked ${sideChoice.toUpperCase()} for you… locking flip result…`;
+    } else if (triggeredByAuto) {
+      statusLine.textContent = `Auto cashout on ${sideChoice.toUpperCase()} at ${currentMult.toFixed(2)}x…`;
+    } else {
+      statusLine.textContent = `Locking flip result on ${sideChoice.toUpperCase()}…`;
+    }
+
+    localStorage.setItem("coinclash_side", sideChoice);
+    cashoutBtn.disabled = true;
+    clearInterval(multTimer);
+    multTimer = null;
+
+    playSfx(sfxClick);
+
+    try {
+      const resp = await fetch(
+        `${API}/flip?choice=${encodeURIComponent(sideChoice)}&clientSeed=${encodeURIComponent(clientSeed)}&nonce=${nonce}`
+      );
+      const data = await resp.json();
+      const result = data.result;
+      stopSpin(result);
+
+      if (result === sideChoice) {
+        const winAmount = bet * currentMult;
+        balance += winAmount;
+        setBalanceDisplay();
+        statusLine.innerHTML =
+          `✅ You bet <strong>${sideChoice.toUpperCase()}</strong>. ` +
+          `Coin landed <strong>${result.toUpperCase()}</strong>. ` +
+          `You cashed out at <strong>${currentMult.toFixed(2)}x</strong> ` +
+          `and won <strong>${winAmount.toFixed(2)} credits</strong>.`;
+        playSfx(sfxWin);
+      } else {
+        balance -= bet;
+        setBalanceDisplay();
+        statusLine.innerHTML =
+          `❌ You bet <strong>${sideChoice.toUpperCase()}</strong> ` +
+          `but coin landed <strong>${result.toUpperCase()}</strong>. You lose your bet.`;
+        playSfx(sfxBust);
+      }
+    } catch (e) {
+      console.error(e);
+      statusLine.textContent = "Error contacting backend for flip.";
+    } finally {
+      endRoundCleanup();
+    }
+  }
+
+  startBtn.addEventListener("click", async () => {
+    if (isRunning) return;
+    playSfx(sfxClick);
+
+    if (balance <= 0) {
+      statusLine.textContent = "Your balance is 0. Deposit to start playing.";
+      return;
+    }
+
+    let bet = Number(betInput.value);
+
+    if (!Number.isFinite(bet) || bet < MIN_BET) {
+      statusLine.textContent = `Minimum bet is $${MIN_BET.toFixed(2)}.`;
+      bet = MIN_BET;
+      betInput.value = bet.toFixed(2);
+      setBetLabel();
+      return;
+    }
+    if (bet > MAX_BET) {
+      statusLine.textContent = `Maximum bet is $${MAX_BET.toLocaleString()}.`;
+      bet = MAX_BET;
+      betInput.value = bet.toFixed(2);
+      setBetLabel();
+      return;
+    }
+    if (bet > balance) {
+      statusLine.textContent = "Not enough balance for that bet.";
+      return;
+    }
+
+    setBetLabel();
+
+    isRunning = true;
+    hasFlipped = false;
+    startBtn.disabled = true;
+    startBtn.textContent = "Running…";
+
+    const mode = getSelectedMode();
+    cashoutBtn.style.display = mode === "Manual" ? "block" : "none";
+    cashoutBtn.disabled = false;
+
+    resetCoin("Heads");
+    currentMult = 1.0;
+    multiplierDisplay.textContent = currentMult.toFixed(2) + "x";
+    multFill.style.transform = "scaleX(0.1)";
+
+    const visibleSide = getSelectedSide();
+    statusLine.innerHTML =
+      `Round starting… side: <strong>${visibleSide}</strong>. ` +
+      `Requesting multiplier…`;
+
+    try {
+      const resp = await fetch(
+        `${API}/round?clientSeed=${encodeURIComponent(clientSeed)}&nonce=${nonce}`
+      );
+      const data = await resp.json();
+      targetBust = Number(data.bustPoint) || 2.0;
+
+      if (mode === "Auto") {
+        autoTarget = chooseAutoTarget(targetBust);
+        statusLine.innerHTML =
+          `Auto mode: target set to <strong>${autoTarget.toFixed(2)}x</strong>. ` +
+          `Bust at <strong>${targetBust.toFixed(2)}x</strong> if you don't get there.`;
+      } else {
+        statusLine.innerHTML =
+          `Manual mode: bust at <strong>${targetBust.toFixed(2)}x</strong>. ` +
+          `Click Cash Out before that.`;
+      }
+
+      startSpin();
+
+      const maxBarMult = Math.max(targetBust, 5);
+      multTimer = setInterval(() => {
+        if (!isRunning) return;
+        currentMult += 0.03;
+        multiplierDisplay.textContent = currentMult.toFixed(2) + "x";
+
+        const progress = Math.min(currentMult / maxBarMult, 1);
+        multFill.style.transform = `scaleX(${progress})`;
+
+        const modeNow = getSelectedMode();
+        if (modeNow === "Auto" && !hasFlipped && autoTarget && currentMult >= autoTarget) {
+          performCashout(true);
+          return;
+        }
+
+        if (currentMult >= targetBust && !hasFlipped) {
+          stopSpin("Tails");
+          balance -= bet;
+          setBalanceDisplay();
+          statusLine.innerHTML =
+            `💥 Bust at <strong>${targetBust.toFixed(2)}x</strong>. ` +
+            `You lost your bet.`;
+          playSfx(sfxBust);
+          endRoundCleanup();
+        }
+      }, 50);
+    } catch (e) {
+      console.error(e);
+      statusLine.textContent = "Error contacting backend.";
+      endRoundCleanup();
+    }
+  });
+
+  cashoutBtn.addEventListener("click", () => {
+    playSfx(sfxClick);
+    performCashout(false);
+  });
+
+  betInput.addEventListener("input", setBetLabel);
+
+  betInput.addEventListener("change", () => {
+    let b = Number(betInput.value);
+    if (!Number.isFinite(b)) b = MIN_BET;
+    if (b < MIN_BET) b = MIN_BET;
+    if (b > MAX_BET) b = MAX_BET;
+    betInput.value = b.toFixed(2);
+    setBetLabel();
+  });
+</script>
+</body>
+</html>
+
