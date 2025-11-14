@@ -445,7 +445,11 @@ button:disabled { opacity: 0.5; }
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
+  const DEBUG = false;
   const RTP = 0.98;
+  const MIN_BET = 0.10;
+  const MAX_BET = 20000.00;
+  const API_URL = "/.netlify/functions/play";
 
   let balance = 1000.00;
   let selectedMultiplier = 1.96;
@@ -462,6 +466,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const trail = document.getElementById("trail");
   const hand = document.getElementById("hand");
   const multDisplay = document.getElementById("multDisplay");
+
+  (function checkIntegrity() {
+    if (typeof playRound !== 'function' || typeof fetch !== 'function') {
+      console.warn('Tampering detected: Core game functions may be compromised');
+    }
+  })();
 
   function createCoinFlickSound() {
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -730,20 +740,44 @@ document.addEventListener("DOMContentLoaded", () => {
     trail.classList.add("active");
   }
 
-  function playRound() {
+  function validateBet(bet) {
+    if (isNaN(bet)) {
+      return { valid: false, error: "Bet must be a valid number" };
+    }
+    if (bet <= 0) {
+      return { valid: false, error: "Bet must be greater than zero" };
+    }
+    if (bet < MIN_BET) {
+      return { valid: false, error: `Minimum bet is $${MIN_BET.toFixed(2)}` };
+    }
+    if (bet > MAX_BET) {
+      return { valid: false, error: `Maximum bet is $${MAX_BET.toLocaleString('en-US', {minimumFractionDigits: 2})}` };
+    }
+    if (bet > balance) {
+      return { valid: false, error: "Insufficient balance" };
+    }
+    return { valid: true };
+  }
+
+  async function playRound() {
     errorText.textContent = "";
     resultText.textContent = "";
     fairnessInfo.textContent = "";
 
     let bet = parseFloat(betAmount.value);
-    if (isNaN(bet) || bet < 0.1) return errorText.textContent = "Minimum bet is $0.10";
-    if (bet > 20000) return errorText.textContent = "Maximum bet is $20,000";
-    if (bet > balance) return errorText.textContent = "Insufficient balance.";
+    
+    const validation = validateBet(bet);
+    if (!validation.valid) {
+      errorText.textContent = validation.error;
+      return;
+    }
 
+    const originalBalance = balance;
     balance -= bet;
     updateBal();
+    saveSettings();
+    
     createCoinFlickSound();
-
     betButton.disabled = true;
 
     selectedMultiplier = randomMultiplier();
@@ -760,47 +794,88 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const cSeed = clientSeed();
 
-    const winChance = RTP / selectedMultiplier;
-    const roll = Math.random();
-    const didWin = roll < winChance;
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          bet: bet,
+          multiplier: selectedMultiplier,
+          client_seed: cSeed,
+          player_choice: playerChoice
+        })
+      });
 
-    const coinResult = didWin ? playerChoice : (playerChoice === "heads" ? "tails" : "heads");
-
-    let payout = 0;
-    if (didWin) {
-      payout = bet * selectedMultiplier;
-    }
-
-    setTimeout(() => {
-
-      if (didWin) {
-        balance += payout;
-        updateBal();
-        coin.textContent = coinResult === "heads" ? "H" : "T";
-        coinLabel.textContent = `${coinResult.charAt(0).toUpperCase() + coinResult.slice(1)} — You win!`;
-        createCaChingSound();
-
-        resultText.className = "result win";
-        resultText.textContent =
-          `WIN! Landed ${coinResult}, you picked ${playerChoice} — Won ${formatMoney(payout)} at ${selectedMultiplier}x`;
-        multDisplay.style.color = "#4ade80";
-      } else {
-        coin.textContent = coinResult === "heads" ? "H" : "T";
-        
-        coinLabel.textContent = `${coinResult.charAt(0).toUpperCase() + coinResult.slice(1)} — You lose.`;
-        createWompSound();
-
-        resultText.className = "result lose";
-        resultText.textContent = `LOSS. Landed ${coinResult}, you picked ${playerChoice}`;
-        multDisplay.style.color = "#f97373";
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ detail: 'Server error' }));
+        throw new Error(errorData.detail || `Server returned ${response.status}`);
       }
 
-      fairnessInfo.textContent =
-        `Client-side RNG — roll: ${roll.toFixed(6)} | win_threshold: ${winChance.toFixed(6)} | client_seed: ${cSeed} | multiplier: ${selectedMultiplier}x`;
+      const data = await response.json();
 
-      betButton.disabled = false;
+      if (DEBUG) {
+        console.log('Game result:', {
+          bet,
+          multiplier: selectedMultiplier,
+          winChance: data.win_chance,
+          roll: data.roll,
+          didWin: data.did_win,
+          payout: data.payout
+        });
+      }
 
-    }, 1200);
+      setTimeout(() => {
+        const coinResult = data.coin_side;
+        const didWin = data.did_win;
+        const payout = data.payout;
+
+        if (didWin && payout > 0) {
+          balance += payout;
+          updateBal();
+          saveSettings();
+          
+          coin.textContent = coinResult === "heads" ? "H" : "T";
+          coinLabel.textContent = `${coinResult.charAt(0).toUpperCase() + coinResult.slice(1)} — You win!`;
+          createCaChingSound();
+
+          resultText.className = "result win";
+          resultText.textContent =
+            `WIN! Landed ${coinResult}, you picked ${playerChoice} — Won ${formatMoney(payout)} at ${selectedMultiplier}x`;
+          multDisplay.style.color = "#4ade80";
+        } else {
+          coin.textContent = coinResult === "heads" ? "H" : "T";
+          
+          coinLabel.textContent = `${coinResult.charAt(0).toUpperCase() + coinResult.slice(1)} — You lose.`;
+          createWompSound();
+
+          resultText.className = "result lose";
+          resultText.textContent = `LOSS. Landed ${coinResult}, you picked ${playerChoice}`;
+          multDisplay.style.color = "#f97373";
+        }
+
+        fairnessInfo.textContent =
+          `Server RNG — roll: ${data.roll.toFixed(6)} | win_threshold: ${data.win_chance.toFixed(6)} | ` +
+          `server_seed_hash: ${data.server_seed_hash.substring(0, 16)}... | nonce: ${data.nonce}`;
+
+        betButton.disabled = false;
+      }, 1200);
+
+    } catch (error) {
+      setTimeout(() => {
+        balance = originalBalance;
+        updateBal();
+        saveSettings();
+        
+        errorText.textContent = `Error: ${error.message}`;
+        betButton.disabled = false;
+        
+        coin.classList.remove("tossing");
+        hand.classList.remove("flicking");
+        coinLabel.textContent = "Error occurred - bet refunded";
+      }, 1200);
+    }
   }
 
   betButton.addEventListener("click", playRound);
