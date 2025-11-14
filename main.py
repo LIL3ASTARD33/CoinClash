@@ -25,14 +25,18 @@ class PlayRequest(BaseModel):
     bet: float
     multiplier: float
     client_seed: str
+    player_choice: str = "heads"
 
 class PlayResponse(BaseModel):
     did_win: bool
+    roll_won: bool
+    choice_matched: bool
     payout: float
     roll: float
     win_chance: float
     server_seed_hash: str
     nonce: int
+    coin_side: str
 
 def get_server_seed_hash(server_seed: str) -> str:
     """Commitment hash shown to player before revealing server seed."""
@@ -69,16 +73,23 @@ def play(req: PlayRequest):
     roll = generate_random_0_1(SERVER_SEED, req.client_seed, nonce)
 
     did_win = roll < win_chance
-    payout = req.bet * req.multiplier if did_win else 0.0
+    coin_side = "heads" if roll < 0.5 else "tails"
+    
+    choice_matched = coin_side == req.player_choice
+    actual_win = did_win and choice_matched
+    payout = req.bet * req.multiplier if actual_win else 0.0
 
     server_seed_hash = get_server_seed_hash(SERVER_SEED)
 
     return PlayResponse(
-        did_win=did_win,
+        did_win=actual_win,
+        roll_won=did_win,
+        choice_matched=choice_matched,
         payout=payout,
         roll=roll,
         win_chance=win_chance,
         server_seed_hash=server_seed_hash,
         nonce=nonce,
+        coin_side=coin_side,
     )
 
