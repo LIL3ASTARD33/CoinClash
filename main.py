@@ -15,7 +15,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-HOUSE_EDGE = 0.03  # 3% edge
+HOUSE_EDGE = 0.20  # 20% edge (80% RTP)
 
 # In real production: this should be random, rotated, and not hard-coded.
 SERVER_SEED = "super_secret_server_seed_change_me"

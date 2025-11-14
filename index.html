@@ -367,7 +367,7 @@ button:disabled { opacity: 0.5; }
   <input type="number" id="betAmount" value="10" min="0.10" max="20000" step="0.01" />
 
   <div class="multiplier-row">
-    <div class="multiplier-label">Target Multiplier (Auto-picked: <span id="multDisplay">1.9x</span>)</div>
+    <div class="multiplier-label">Target Multiplier (Auto-picked: <span id="multDisplay">1.96x</span>)</div>
   </div>
 
   <div class="choice-row">
@@ -454,7 +454,7 @@ document.addEventListener("DOMContentLoaded", () => {
     : "/.netlify/functions/play";
 
   let balance = 1000.00;
-  let selectedMultiplier = 1.93;
+  let selectedMultiplier = 1.96;
   let playerChoice = "heads";
 
   const balanceDisplay = document.getElementById("balanceDisplay");
@@ -824,8 +824,8 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function randomMultiplier() {
-    const min = 1.9;
-    const max = 10000;
+    const min = 1.96;
+    const max = 10;
     const random = Math.random();
     const mult = min * Math.pow(max / min, random);
     return Math.round(mult * 100) / 100;
