@@ -391,7 +391,7 @@ button:disabled { opacity: 0.5; }
   <div class="error" id="errorText"></div>
 
   <div class="info-line">
-    Dynamic win chance — Higher multipliers = lower win chance (98% RTP)
+    Dynamic Win-98% RTP
   </div>
 
   <div class="fairness" id="fairnessInfo"></div>
@@ -895,7 +895,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         resultText.className = "result win";
         resultText.textContent =
-          `WIN! Landed ${coinResult}, you picked ${playerChoice} — Won ${formatMoney(payout)} at ${selectedMultiplier}x (${(winChance * 100).toFixed(2)}% chance)`;
+          `WIN! Landed ${coinResult}, you picked ${playerChoice} — Won ${formatMoney(payout)} at ${selectedMultiplier}x`;
         multDisplay.style.color = "#4ade80";
       } else {
         coin.textContent = coinResult === "heads" ? "H" : "T";
@@ -904,7 +904,7 @@ document.addEventListener("DOMContentLoaded", () => {
         createWompSound();
 
         resultText.className = "result lose";
-        resultText.textContent = `LOSS. Landed ${coinResult}, you picked ${playerChoice} (${(winChance * 100).toFixed(2)}% win chance)`;
+        resultText.textContent = `LOSS. Landed ${coinResult}, you picked ${playerChoice}`;
         multDisplay.style.color = "#f97373";
       }
 
