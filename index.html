@@ -70,23 +70,34 @@ button:disabled { opacity: 0.5; }
 /* ----------- MULTIPLIERS ----------- */
 .multiplier-row { margin-bottom: 12px; }
 .multiplier-label { font-size: 14px; margin-bottom: 6px; }
-.multiplier-buttons {
-  display: flex; flex-wrap: wrap; gap: 6px;
+#multDisplay { color: #2f7dfc; font-weight: bold; }
+
+/* ----------- CHOICE BUTTONS ----------- */
+.choice-row { margin-bottom: 12px; }
+.choice-label { font-size: 14px; margin-bottom: 6px; }
+.choice-buttons {
+  display: flex; gap: 8px;
 }
-.mult-btn {
-  flex: 1 1 calc(25% - 6px);
-  padding: 6px;
-  border-radius: 999px;
+.choice-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
   background: #11162b;
   color: #ffffff;
-  font-size: 11px;
+  font-size: 14px;
+  font-weight: bold;
   cursor: pointer;
   text-align: center;
   transition: 0.15s ease;
+  border: 2px solid transparent;
 }
-.mult-btn.active {
+.choice-btn.active {
   background: #2f7dfc;
+  border-color: #5a9cff;
   transform: translateY(-1px);
+}
+.choice-btn:hover:not(.active) {
+  background: #1a2040;
 }
 
 /* ----------- COIN & ANIMATION ----------- */
@@ -96,7 +107,7 @@ button:disabled { opacity: 0.5; }
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  height: 180px;
+  height: 240px;
   position: relative;
   overflow: visible;
 }
@@ -112,8 +123,31 @@ button:disabled { opacity: 0.5; }
   font-weight: bold;
   border: 3px solid rgba(255,255,255,0.25);
   position: absolute;
-  bottom: 0;
+  bottom: 50px;
   transition: transform 0.3s ease;
+}
+
+.hand {
+  position: absolute;
+  bottom: 0;
+  width: 60px;
+  height: 60px;
+  font-size: 50px;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.hand.flicking {
+  animation: handFlick 1.2s cubic-bezier(.29,.59,.42,1.35) forwards;
+}
+
+@keyframes handFlick {
+  0%   { opacity: 0; bottom: 0; transform: translateY(20px) rotate(0deg); }
+  15%  { opacity: 1; bottom: 20px; transform: translateY(0) rotate(-10deg); }
+  30%  { opacity: 1; bottom: 40px; transform: translateY(-10px) rotate(15deg); }
+  45%  { opacity: 0.8; bottom: 50px; transform: translateY(-15px) rotate(0deg); }
+  60%  { opacity: 0; bottom: 60px; transform: translateY(-20px) rotate(-5deg); }
+  100% { opacity: 0; bottom: 60px; transform: translateY(-20px) rotate(-5deg); }
 }
 
 /* Cartoon "motion trail" behind coin */
@@ -138,10 +172,10 @@ button:disabled { opacity: 0.5; }
 
 /* Coin spins fast in cartoon style */
 @keyframes coinToss {
-  0%   { bottom: 0; transform: rotateY(0deg) scale(1); }
-  40%  { bottom: 120px; transform: rotateY(900deg) scale(1.1); }
-  70%  { bottom: 40px; transform: rotateY(1500deg) scale(0.95); }
-  100% { bottom: 0; transform: rotateY(1800deg) scale(1); }
+  0%   { bottom: 50px; transform: rotateY(0deg) scale(1); }
+  40%  { bottom: 180px; transform: rotateY(900deg) scale(1.1); }
+  70%  { bottom: 100px; transform: rotateY(1500deg) scale(0.95); }
+  100% { bottom: 50px; transform: rotateY(1800deg) scale(1); }
 }
 
 @keyframes trailFlash {
@@ -150,7 +184,7 @@ button:disabled { opacity: 0.5; }
   100% { opacity: 0; transform: translateX(-60px) rotate(-20deg); }
 }
 
-.coin-label { font-size: 13px; opacity: 0.8; margin-top: 100px; }
+.coin-label { font-size: 13px; opacity: 0.8; margin-top: 160px; }
 
 .result { text-align: center; min-height: 22px; margin-bottom: 6px; font-size: 14px; }
 .result.win { color: #4ade80; }
@@ -161,11 +195,163 @@ button:disabled { opacity: 0.5; }
 .info-line { font-size: 12px; text-align: center; opacity: 0.7; margin-top: 4px; }
 .fairness { font-size: 10px; opacity: 0.6; margin-top: 6px; word-break: break-all; }
 
+/* ----------- SETTINGS BUTTON ----------- */
+.settings-toggle {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(47, 125, 252, 0.2);
+  border: 2px solid #2f7dfc;
+  color: #2f7dfc;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s ease;
+}
+.settings-toggle:hover {
+  background: rgba(47, 125, 252, 0.3);
+  transform: scale(1.05);
+}
+
+/* ----------- SETTINGS MODAL ----------- */
+.settings-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+.settings-modal.active {
+  display: flex;
+}
+.settings-panel {
+  background: #0d1020;
+  border-radius: 16px;
+  padding: 24px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 0 50px rgba(0,0,0,0.8);
+  max-height: 80vh;
+  overflow-y: auto;
+}
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.settings-header h2 {
+  margin: 0;
+  font-size: 20px;
+}
+.close-settings {
+  background: transparent;
+  border: none;
+  color: #f5f5f5;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: auto;
+  margin: 0;
+}
+.settings-section {
+  margin-bottom: 20px;
+}
+.settings-section h3 {
+  font-size: 14px;
+  margin: 0 0 10px 0;
+  color: #2f7dfc;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.color-input-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.color-input-group label {
+  flex: 1;
+  margin: 0;
+}
+.color-input-group input[type="color"] {
+  width: 60px;
+  height: 36px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 2px;
+  background: #090c18;
+}
+.slider-group {
+  margin-bottom: 10px;
+}
+.slider-group label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.slider-group input[type="range"] {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+.balance-input-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+.balance-input-group input {
+  flex: 1;
+}
+.balance-input-group button {
+  flex: 0 0 auto;
+  width: auto;
+  padding: 10px 16px;
+}
+.reset-button {
+  background: #f97373 !important;
+}
+
+/* ----------- BET MULTIPLIER BUTTONS ----------- */
+.bet-multipliers {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.bet-mult-btn {
+  flex: 1;
+  padding: 8px;
+  border-radius: 6px;
+  background: #11162b;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: 0.15s ease;
+}
+.bet-mult-btn:hover {
+  background: #1a2040;
+  border-color: #2f7dfc;
+}
+
 </style>
 </head>
 
 <body>
 <div class="game-container">
+  <button class="settings-toggle" id="settingsToggle">⚙️</button>
   <h1>Coin Clash</h1>
 
   <div class="balance-row">
@@ -174,24 +360,21 @@ button:disabled { opacity: 0.5; }
   </div>
 
   <label>Bet Amount</label>
-  <input type="number" id="betAmount" value="10" min="0.10" step="0.01" />
+  <div class="bet-multipliers">
+    <button class="bet-mult-btn" id="halfBet">½ Bet</button>
+    <button class="bet-mult-btn" id="doubleBet">2× Bet</button>
+  </div>
+  <input type="number" id="betAmount" value="10" min="0.10" max="20000" step="0.01" />
 
   <div class="multiplier-row">
-    <div class="multiplier-label">Target Multiplier</div>
-    <div class="multiplier-buttons" id="multiplierButtons">
-      <button class="mult-btn active" data-mult="1.93">1.93x</button>
-      <button class="mult-btn" data-mult="2">2x</button>
-      <button class="mult-btn" data-mult="3">3x</button>
-      <button class="mult-btn" data-mult="5">5x</button>
-      <button class="mult-btn" data-mult="10">10x</button>
-      <button class="mult-btn" data-mult="25">25x</button>
-      <button class="mult-btn" data-mult="50">50x</button>
-      <button class="mult-btn" data-mult="100">100x</button>
-      <button class="mult-btn" data-mult="250">250x</button>
-      <button class="mult-btn" data-mult="500">500x</button>
-      <button class="mult-btn" data-mult="1000">1,000x</button>
-      <button class="mult-btn" data-mult="5000">5,000x</button>
-      <button class="mult-btn" data-mult="10000">10,000x</button>
+    <div class="multiplier-label">Target Multiplier (Auto-picked: <span id="multDisplay">1.9x</span>)</div>
+  </div>
+
+  <div class="choice-row">
+    <div class="choice-label">Pick Your Side</div>
+    <div class="choice-buttons">
+      <button class="choice-btn active" data-choice="heads">Heads</button>
+      <button class="choice-btn" data-choice="tails">Tails</button>
     </div>
   </div>
 
@@ -199,6 +382,7 @@ button:disabled { opacity: 0.5; }
 
   <div class="coin-area">
     <div class="motion-trail" id="trail"></div>
+    <div class="hand" id="hand">👆</div>
     <div class="coin" id="coin">?</div>
     <div class="coin-label" id="coinLabel">Waiting for bet...</div>
   </div>
@@ -207,19 +391,71 @@ button:disabled { opacity: 0.5; }
   <div class="error" id="errorText"></div>
 
   <div class="info-line">
-    House edge ≈ 3% on every multiplier (win chance = 0.97 / M).
+    50/50 coin flip — Multiplier affects payout only, not odds.
   </div>
 
   <div class="fairness" id="fairnessInfo"></div>
 </div>
 
+<div class="settings-modal" id="settingsModal">
+  <div class="settings-panel">
+    <div class="settings-header">
+      <h2>Settings</h2>
+      <button class="close-settings" id="closeSettings">×</button>
+    </div>
+
+    <div class="settings-section">
+      <h3>Colors</h3>
+      <div class="color-input-group">
+        <label>Background</label>
+        <input type="color" id="colorBg" value="#050814" />
+      </div>
+      <div class="color-input-group">
+        <label>Panel Background</label>
+        <input type="color" id="colorPanel" value="#0d1020" />
+      </div>
+      <div class="color-input-group">
+        <label>Text</label>
+        <input type="color" id="colorText" value="#f5f5f5" />
+      </div>
+      <div class="color-input-group">
+        <label>Accent (Buttons)</label>
+        <input type="color" id="colorAccent" value="#2f7dfc" />
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h3>Audio</h3>
+      <div class="slider-group">
+        <label>
+          <span>Volume</span>
+          <span id="volumeDisplay">100%</span>
+        </label>
+        <input type="range" id="volumeSlider" min="0" max="100" value="100" />
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h3>Balance</h3>
+      <div class="balance-input-group">
+        <input type="number" id="depositAmount" placeholder="Amount" min="0.10" step="0.01" />
+        <button id="depositBtn">Deposit</button>
+      </div>
+      <button id="resetBalance" class="reset-button" style="margin-top: 10px;">Reset to $1,000</button>
+    </div>
+  </div>
+</div>
+
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
-  const API_URL = "http://localhost:8000/play";
+  const API_URL = window.location.hostname === 'localhost' 
+    ? "http://localhost:8000/play"
+    : "/.netlify/functions/play";
 
   let balance = 1000.00;
   let selectedMultiplier = 1.93;
+  let playerChoice = "heads";
 
   const balanceDisplay = document.getElementById("balanceDisplay");
   const betAmount = document.getElementById("betAmount");
@@ -230,21 +466,370 @@ document.addEventListener("DOMContentLoaded", () => {
   const coinLabel = document.getElementById("coinLabel");
   const fairnessInfo = document.getElementById("fairnessInfo");
   const trail = document.getElementById("trail");
+  const hand = document.getElementById("hand");
+  const multDisplay = document.getElementById("multDisplay");
 
-  // Sounds
-  const betSound = new Audio("audio/bet.wav");
-  const winSound = new Audio("audio/win.wav");
-  const loseSound = new Audio("audio/lose.wav");
+  function createCoinFlickSound() {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const now = audioContext.currentTime;
+    
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    const filter = audioContext.createBiquadFilter();
+    
+    oscillator.connect(filter);
+    filter.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(800, now);
+    oscillator.frequency.exponentialRampToValueAtTime(2000, now + 0.03);
+    oscillator.frequency.exponentialRampToValueAtTime(400, now + 0.15);
+    
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(1500, now);
+    filter.Q.value = 5;
+    
+    gainNode.gain.setValueAtTime(0.4 * masterVolume, now);
+    gainNode.gain.exponentialRampToValueAtTime(0.15 * masterVolume, now + 0.05);
+    gainNode.gain.exponentialRampToValueAtTime(0.01 * masterVolume, now + 0.2);
+    
+    oscillator.start(now);
+    oscillator.stop(now + 0.2);
+  }
 
-  const multButtons = document.getElementById("multiplierButtons");
+  function createCaChingSound() {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const now = audioContext.currentTime;
+    
+    const osc1 = audioContext.createOscillator();
+    const osc2 = audioContext.createOscillator();
+    const gain1 = audioContext.createGain();
+    const gain2 = audioContext.createGain();
+    const mainGain = audioContext.createGain();
+    
+    osc1.connect(gain1);
+    osc2.connect(gain2);
+    gain1.connect(mainGain);
+    gain2.connect(mainGain);
+    mainGain.connect(audioContext.destination);
+    
+    osc1.type = 'triangle';
+    osc2.type = 'sine';
+    
+    osc1.frequency.setValueAtTime(1047, now);
+    osc1.frequency.exponentialRampToValueAtTime(1319, now + 0.05);
+    osc1.frequency.exponentialRampToValueAtTime(1568, now + 0.1);
+    
+    osc2.frequency.setValueAtTime(1047 * 2, now);
+    osc2.frequency.exponentialRampToValueAtTime(1319 * 2, now + 0.05);
+    osc2.frequency.exponentialRampToValueAtTime(1568 * 2, now + 0.1);
+    
+    gain1.gain.setValueAtTime(0.3, now);
+    gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+    
+    gain2.gain.setValueAtTime(0.15, now);
+    gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+    
+    mainGain.gain.setValueAtTime(0.5 * masterVolume, now);
+    
+    osc1.start(now);
+    osc2.start(now);
+    osc1.stop(now + 0.4);
+    osc2.stop(now + 0.4);
+  }
 
-  multButtons.addEventListener("click", (e) => {
-    const btn = e.target.closest(".mult-btn");
-    if (!btn) return;
-    selectedMultiplier = parseFloat(btn.dataset.mult);
-    document.querySelectorAll(".mult-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
+  function createWompSound() {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const now = audioContext.currentTime;
+    
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.type = 'sawtooth';
+    
+    oscillator.frequency.setValueAtTime(200, now);
+    oscillator.frequency.exponentialRampToValueAtTime(50, now + 0.5);
+    
+    gainNode.gain.setValueAtTime(0.3 * masterVolume, now);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+    
+    oscillator.start(now);
+    oscillator.stop(now + 0.5);
+  }
+
+  let lofiAudioContext = null;
+  let lofiMainGain = null;
+  let lofiIsPlaying = false;
+  let masterVolume = 1.0;
+
+  // Settings management
+  const settingsToggle = document.getElementById("settingsToggle");
+  const settingsModal = document.getElementById("settingsModal");
+  const closeSettings = document.getElementById("closeSettings");
+  const colorBg = document.getElementById("colorBg");
+  const colorPanel = document.getElementById("colorPanel");
+  const colorText = document.getElementById("colorText");
+  const colorAccent = document.getElementById("colorAccent");
+  const volumeSlider = document.getElementById("volumeSlider");
+  const volumeDisplay = document.getElementById("volumeDisplay");
+  const depositAmount = document.getElementById("depositAmount");
+  const depositBtn = document.getElementById("depositBtn");
+  const resetBalance = document.getElementById("resetBalance");
+  const halfBet = document.getElementById("halfBet");
+  const doubleBet = document.getElementById("doubleBet");
+
+  function loadSettings() {
+    const saved = localStorage.getItem("coinClashSettings");
+    if (saved) {
+      const settings = JSON.parse(saved);
+      if (settings.colorBg) {
+        colorBg.value = settings.colorBg;
+        document.body.style.background = settings.colorBg;
+      }
+      if (settings.colorPanel) {
+        colorPanel.value = settings.colorPanel;
+        document.querySelector(".game-container").style.background = settings.colorPanel;
+      }
+      if (settings.colorText) {
+        colorText.value = settings.colorText;
+        document.body.style.color = settings.colorText;
+      }
+      if (settings.colorAccent) {
+        colorAccent.value = settings.colorAccent;
+        applyAccentColor(settings.colorAccent);
+      }
+      if (settings.volume !== undefined) {
+        masterVolume = settings.volume / 100;
+        volumeSlider.value = settings.volume;
+        volumeDisplay.textContent = settings.volume + "%";
+      }
+      if (settings.balance !== undefined) {
+        balance = settings.balance;
+        updateBal();
+      }
+    }
+  }
+
+  function saveSettings() {
+    const settings = {
+      colorBg: colorBg.value,
+      colorPanel: colorPanel.value,
+      colorText: colorText.value,
+      colorAccent: colorAccent.value,
+      volume: parseInt(volumeSlider.value),
+      balance: balance
+    };
+    localStorage.setItem("coinClashSettings", JSON.stringify(settings));
+  }
+
+  function applyAccentColor(color) {
+    document.documentElement.style.setProperty("--accent-color", color);
+    const style = document.createElement("style");
+    style.id = "dynamic-accent-style";
+    style.textContent = `
+      button:not(.close-settings):not(.reset-button) { background: ${color} !important; }
+      .choice-btn.active { background: ${color} !important; border-color: ${color}99 !important; }
+      .settings-toggle { border-color: ${color} !important; color: ${color} !important; background: ${color}33 !important; }
+      .settings-toggle:hover { background: ${color}4d !important; }
+      .settings-section h3 { color: ${color} !important; }
+      .bet-mult-btn:hover { border-color: ${color} !important; }
+      #multDisplay { color: ${color} !important; }
+    `;
+    const oldStyle = document.getElementById("dynamic-accent-style");
+    if (oldStyle) oldStyle.remove();
+    document.head.appendChild(style);
+  }
+
+  settingsToggle.addEventListener("click", () => {
+    settingsModal.classList.add("active");
   });
+
+  closeSettings.addEventListener("click", () => {
+    settingsModal.classList.remove("active");
+  });
+
+  settingsModal.addEventListener("click", (e) => {
+    if (e.target === settingsModal) {
+      settingsModal.classList.remove("active");
+    }
+  });
+
+  colorBg.addEventListener("input", (e) => {
+    document.body.style.background = e.target.value;
+    saveSettings();
+  });
+
+  colorPanel.addEventListener("input", (e) => {
+    document.querySelector(".game-container").style.background = e.target.value;
+    saveSettings();
+  });
+
+  colorText.addEventListener("input", (e) => {
+    document.body.style.color = e.target.value;
+    saveSettings();
+  });
+
+  colorAccent.addEventListener("input", (e) => {
+    applyAccentColor(e.target.value);
+    saveSettings();
+  });
+
+  volumeSlider.addEventListener("input", (e) => {
+    const vol = parseInt(e.target.value);
+    masterVolume = vol / 100;
+    volumeDisplay.textContent = vol + "%";
+    if (lofiMainGain) {
+      lofiMainGain.gain.setValueAtTime(0.12 * masterVolume, lofiAudioContext.currentTime);
+    }
+    saveSettings();
+  });
+
+  depositBtn.addEventListener("click", () => {
+    const amount = parseFloat(depositAmount.value);
+    if (!isNaN(amount) && amount > 0) {
+      balance += amount;
+      updateBal();
+      depositAmount.value = "";
+      saveSettings();
+    }
+  });
+
+  resetBalance.addEventListener("click", () => {
+    balance = 1000;
+    updateBal();
+    saveSettings();
+  });
+
+  halfBet.addEventListener("click", () => {
+    const current = parseFloat(betAmount.value) || 0;
+    const newBet = Math.max(0.1, current / 2);
+    betAmount.value = newBet.toFixed(2);
+  });
+
+  doubleBet.addEventListener("click", () => {
+    const current = parseFloat(betAmount.value) || 0;
+    const newBet = Math.min(20000, current * 2);
+    betAmount.value = newBet.toFixed(2);
+  });
+
+  loadSettings();
+
+  function createLofiBackgroundMusic() {
+    if (lofiIsPlaying) return;
+    
+    lofiAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+    lofiMainGain = lofiAudioContext.createGain();
+    lofiMainGain.gain.setValueAtTime(0.12 * masterVolume, lofiAudioContext.currentTime);
+    lofiMainGain.connect(lofiAudioContext.destination);
+    
+    const chords = [
+      [261.63, 329.63, 392.00],
+      [293.66, 349.23, 440.00],
+      [246.94, 311.13, 369.99],
+      [220.00, 277.18, 329.63]
+    ];
+    
+    let chordIndex = 0;
+    
+    function playChord() {
+      if (!lofiIsPlaying) return;
+      
+      const now = lofiAudioContext.currentTime;
+      const chord = chords[chordIndex % chords.length];
+      
+      chord.forEach((freq, i) => {
+        const osc = lofiAudioContext.createOscillator();
+        const gain = lofiAudioContext.createGain();
+        const filter = lofiAudioContext.createBiquadFilter();
+        
+        osc.type = i === 0 ? 'sine' : 'triangle';
+        osc.frequency.setValueAtTime(freq, now);
+        
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(800, now);
+        filter.Q.value = 1;
+        
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(lofiMainGain);
+        
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.25, now + 0.1);
+        gain.gain.setValueAtTime(0.25, now + 1.8);
+        gain.gain.linearRampToValueAtTime(0, now + 2.0);
+        
+        osc.start(now);
+        osc.stop(now + 2.0);
+      });
+      
+      chordIndex++;
+      setTimeout(playChord, 2000);
+    }
+    
+    function playBass() {
+      if (!lofiIsPlaying) return;
+      
+      const now = lofiAudioContext.currentTime;
+      const bassNotes = [65.41, 73.42, 61.74, 55.00];
+      const note = bassNotes[chordIndex % bassNotes.length];
+      
+      const osc = lofiAudioContext.createOscillator();
+      const gain = lofiAudioContext.createGain();
+      const filter = lofiAudioContext.createBiquadFilter();
+      
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(note, now);
+      
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(200, now);
+      
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(lofiMainGain);
+      
+      gain.gain.setValueAtTime(0.4, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 1.9);
+      
+      osc.start(now);
+      osc.stop(now + 2.0);
+      
+      setTimeout(playBass, 2000);
+    }
+    
+    lofiIsPlaying = true;
+    playChord();
+    playBass();
+  }
+
+  function stopLofiMusic() {
+    lofiIsPlaying = false;
+    if (lofiMainGain) {
+      lofiMainGain.gain.exponentialRampToValueAtTime(0.01, lofiAudioContext.currentTime + 0.5);
+    }
+  }
+
+  createLofiBackgroundMusic();
+
+  const choiceButtons = document.querySelectorAll(".choice-btn");
+  choiceButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      playerChoice = btn.dataset.choice;
+      choiceButtons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+    });
+  });
+
+  function randomMultiplier() {
+    const min = 1.9;
+    const max = 10000;
+    const random = Math.random();
+    const mult = min * Math.pow(max / min, random);
+    return Math.round(mult * 100) / 100;
+  }
 
   function formatMoney(v) { return "$" + v.toFixed(2); }
   function updateBal() { balanceDisplay.textContent = formatMoney(balance); }
@@ -266,19 +851,25 @@ document.addEventListener("DOMContentLoaded", () => {
     fairnessInfo.textContent = "";
 
     let bet = parseFloat(betAmount.value);
-    if (isNaN(bet) || bet < 0.1) return errorText.textContent = "Invalid bet.";
+    if (isNaN(bet) || bet < 0.1) return errorText.textContent = "Minimum bet is $0.10";
+    if (bet > 20000) return errorText.textContent = "Maximum bet is $20,000";
     if (bet > balance) return errorText.textContent = "Insufficient balance.";
 
     balance -= bet;
     updateBal();
-    betSound.play();
+    createCoinFlickSound();
 
     betButton.disabled = true;
 
-    // Cartoon toss animation
+    selectedMultiplier = randomMultiplier();
+    multDisplay.textContent = selectedMultiplier + "x";
+
     coin.textContent = "";
     coin.classList.remove("tossing");
+    hand.classList.remove("flicking");
     void coin.offsetWidth;
+    void hand.offsetWidth;
+    hand.classList.add("flicking");
     coin.classList.add("tossing");
     playTrail();
 
@@ -290,7 +881,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bet, multiplier: selectedMultiplier, client_seed: cSeed })
+        body: JSON.stringify({ bet, multiplier: selectedMultiplier, client_seed: cSeed, player_choice: playerChoice })
       });
 
       data = await res.json();
@@ -305,24 +896,29 @@ document.addEventListener("DOMContentLoaded", () => {
     // Reveal AFTER toss finishes
     setTimeout(() => {
 
-      if (data.did_win) {
+      const coinResult = data.coin_side;
+      const playerWon = data.did_win;
+
+      if (playerWon) {
         balance += data.payout;
         updateBal();
-        coin.textContent = "H";
-        coinLabel.textContent = "Heads — You win!";
-        winSound.play();
+        coin.textContent = coinResult === "heads" ? "H" : "T";
+        coinLabel.textContent = `${coinResult.charAt(0).toUpperCase() + coinResult.slice(1)} — You win!`;
+        createCaChingSound();
 
         resultText.className = "result win";
         resultText.textContent =
-          `WIN! Roll ${data.roll.toFixed(4)} < ${data.win_chance.toFixed(4)} — Won ${formatMoney(data.payout)}`;
+          `WIN! Landed ${coinResult}, you picked ${playerChoice} — Won ${formatMoney(data.payout)} at ${selectedMultiplier}x`;
+        multDisplay.style.color = "#4ade80";
       } else {
-        coin.textContent = "T";
-        coinLabel.textContent = "Tails — You lose.";
-        loseSound.play();
+        coin.textContent = coinResult === "heads" ? "H" : "T";
+        
+        coinLabel.textContent = `${coinResult.charAt(0).toUpperCase() + coinResult.slice(1)} — You lose.`;
+        createWompSound();
 
         resultText.className = "result lose";
-        resultText.textContent =
-          `LOSS. Roll ${data.roll.toFixed(4)} ≥ ${data.win_chance.toFixed(4)}`;
+        resultText.textContent = `LOSS. Landed ${coinResult}, you picked ${playerChoice}`;
+        multDisplay.style.color = "#f97373";
       }
 
       fairnessInfo.textContent =
