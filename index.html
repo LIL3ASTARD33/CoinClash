@@ -391,7 +391,7 @@ button:disabled { opacity: 0.5; }
   <div class="error" id="errorText"></div>
 
   <div class="info-line">
-    50/50 coin flip — Multiplier affects payout only, not odds.
+    Dynamic win chance — Higher multipliers = lower win chance (98% RTP)
   </div>
 
   <div class="fairness" id="fairnessInfo"></div>
@@ -449,9 +449,7 @@ button:disabled { opacity: 0.5; }
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
-  const API_URL = window.location.hostname === 'localhost' 
-    ? "http://localhost:8000/play"
-    : "/.netlify/functions/play";
+  const RTP = 0.98;
 
   let balance = 1000.00;
   let selectedMultiplier = 1.96;
@@ -845,7 +843,7 @@ document.addEventListener("DOMContentLoaded", () => {
     trail.classList.add("active");
   }
 
-  async function playRound() {
+  function playRound() {
     errorText.textContent = "";
     resultText.textContent = "";
     fairnessInfo.textContent = "";
@@ -875,32 +873,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const cSeed = clientSeed();
 
-    let data = null;
+    const winChance = RTP / selectedMultiplier;
+    const roll = Math.random();
+    const didWin = roll < winChance;
 
-    try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bet, multiplier: selectedMultiplier, client_seed: cSeed, player_choice: playerChoice })
-      });
+    const coinResult = didWin ? playerChoice : (playerChoice === "heads" ? "tails" : "heads");
 
-      data = await res.json();
-    } catch (e) {
-      errorText.textContent = "Server error.";
-      balance += bet;
-      updateBal();
-      betButton.disabled = false;
-      return;
+    let payout = 0;
+    if (didWin) {
+      payout = bet * selectedMultiplier;
     }
 
-    // Reveal AFTER toss finishes
     setTimeout(() => {
 
-      const coinResult = data.coin_side;
-      const playerWon = data.did_win;
-
-      if (playerWon) {
-        balance += data.payout;
+      if (didWin) {
+        balance += payout;
         updateBal();
         coin.textContent = coinResult === "heads" ? "H" : "T";
         coinLabel.textContent = `${coinResult.charAt(0).toUpperCase() + coinResult.slice(1)} — You win!`;
@@ -908,7 +895,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         resultText.className = "result win";
         resultText.textContent =
-          `WIN! Landed ${coinResult}, you picked ${playerChoice} — Won ${formatMoney(data.payout)} at ${selectedMultiplier}x`;
+          `WIN! Landed ${coinResult}, you picked ${playerChoice} — Won ${formatMoney(payout)} at ${selectedMultiplier}x (${(winChance * 100).toFixed(2)}% chance)`;
         multDisplay.style.color = "#4ade80";
       } else {
         coin.textContent = coinResult === "heads" ? "H" : "T";
@@ -917,16 +904,16 @@ document.addEventListener("DOMContentLoaded", () => {
         createWompSound();
 
         resultText.className = "result lose";
-        resultText.textContent = `LOSS. Landed ${coinResult}, you picked ${playerChoice}`;
+        resultText.textContent = `LOSS. Landed ${coinResult}, you picked ${playerChoice} (${(winChance * 100).toFixed(2)}% win chance)`;
         multDisplay.style.color = "#f97373";
       }
 
       fairnessInfo.textContent =
-        `Provably Fair — server_hash: ${data.server_seed_hash} | client_seed: ${cSeed} | nonce: ${data.nonce}`;
+        `Client-side RNG — roll: ${roll.toFixed(6)} | win_threshold: ${winChance.toFixed(6)} | client_seed: ${cSeed} | multiplier: ${selectedMultiplier}x`;
 
       betButton.disabled = false;
 
-    }, 1200); // after animation finishes
+    }, 1200);
   }
 
   betButton.addEventListener("click", playRound);
