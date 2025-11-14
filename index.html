@@ -559,9 +559,6 @@ document.addEventListener("DOMContentLoaded", () => {
     oscillator.stop(now + 0.5);
   }
 
-  let lofiAudioContext = null;
-  let lofiMainGain = null;
-  let lofiIsPlaying = false;
   let masterVolume = 1.0;
 
   // Settings management
@@ -680,9 +677,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const vol = parseInt(e.target.value);
     masterVolume = vol / 100;
     volumeDisplay.textContent = vol + "%";
-    if (lofiMainGain) {
-      lofiMainGain.gain.setValueAtTime(0.12 * masterVolume, lofiAudioContext.currentTime);
-    }
     saveSettings();
   });
 
@@ -715,102 +709,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   loadSettings();
-
-  function createLofiBackgroundMusic() {
-    if (lofiIsPlaying) return;
-    
-    lofiAudioContext = new (window.AudioContext || window.webkitAudioContext)();
-    lofiMainGain = lofiAudioContext.createGain();
-    lofiMainGain.gain.setValueAtTime(0.12 * masterVolume, lofiAudioContext.currentTime);
-    lofiMainGain.connect(lofiAudioContext.destination);
-    
-    const chords = [
-      [261.63, 329.63, 392.00],
-      [293.66, 349.23, 440.00],
-      [246.94, 311.13, 369.99],
-      [220.00, 277.18, 329.63]
-    ];
-    
-    let chordIndex = 0;
-    
-    function playChord() {
-      if (!lofiIsPlaying) return;
-      
-      const now = lofiAudioContext.currentTime;
-      const chord = chords[chordIndex % chords.length];
-      
-      chord.forEach((freq, i) => {
-        const osc = lofiAudioContext.createOscillator();
-        const gain = lofiAudioContext.createGain();
-        const filter = lofiAudioContext.createBiquadFilter();
-        
-        osc.type = i === 0 ? 'sine' : 'triangle';
-        osc.frequency.setValueAtTime(freq, now);
-        
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(800, now);
-        filter.Q.value = 1;
-        
-        osc.connect(filter);
-        filter.connect(gain);
-        gain.connect(lofiMainGain);
-        
-        gain.gain.setValueAtTime(0, now);
-        gain.gain.linearRampToValueAtTime(0.25, now + 0.1);
-        gain.gain.setValueAtTime(0.25, now + 1.8);
-        gain.gain.linearRampToValueAtTime(0, now + 2.0);
-        
-        osc.start(now);
-        osc.stop(now + 2.0);
-      });
-      
-      chordIndex++;
-      setTimeout(playChord, 2000);
-    }
-    
-    function playBass() {
-      if (!lofiIsPlaying) return;
-      
-      const now = lofiAudioContext.currentTime;
-      const bassNotes = [65.41, 73.42, 61.74, 55.00];
-      const note = bassNotes[chordIndex % bassNotes.length];
-      
-      const osc = lofiAudioContext.createOscillator();
-      const gain = lofiAudioContext.createGain();
-      const filter = lofiAudioContext.createBiquadFilter();
-      
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(note, now);
-      
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(200, now);
-      
-      osc.connect(filter);
-      filter.connect(gain);
-      gain.connect(lofiMainGain);
-      
-      gain.gain.setValueAtTime(0.4, now);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + 1.9);
-      
-      osc.start(now);
-      osc.stop(now + 2.0);
-      
-      setTimeout(playBass, 2000);
-    }
-    
-    lofiIsPlaying = true;
-    playChord();
-    playBass();
-  }
-
-  function stopLofiMusic() {
-    lofiIsPlaying = false;
-    if (lofiMainGain) {
-      lofiMainGain.gain.exponentialRampToValueAtTime(0.01, lofiAudioContext.currentTime + 0.5);
-    }
-  }
-
-  createLofiBackgroundMusic();
 
   const choiceButtons = document.querySelectorAll(".choice-btn");
   choiceButtons.forEach(btn => {
