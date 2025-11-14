@@ -319,9 +319,6 @@ button:disabled { opacity: 0.5; }
   width: auto;
   padding: 10px 16px;
 }
-.reset-button {
-  background: #f97373 !important;
-}
 
 /* ----------- BET MULTIPLIER BUTTONS ----------- */
 .bet-multipliers {
@@ -441,7 +438,6 @@ button:disabled { opacity: 0.5; }
         <input type="number" id="depositAmount" placeholder="Amount" min="0.10" step="0.01" />
         <button id="depositBtn">Deposit</button>
       </div>
-      <button id="resetBalance" class="reset-button" style="margin-top: 10px;">Reset to $1,000</button>
     </div>
   </div>
 </div>
@@ -573,7 +569,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const volumeDisplay = document.getElementById("volumeDisplay");
   const depositAmount = document.getElementById("depositAmount");
   const depositBtn = document.getElementById("depositBtn");
-  const resetBalance = document.getElementById("resetBalance");
   const halfBet = document.getElementById("halfBet");
   const doubleBet = document.getElementById("doubleBet");
 
@@ -626,7 +621,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const style = document.createElement("style");
     style.id = "dynamic-accent-style";
     style.textContent = `
-      button:not(.close-settings):not(.reset-button) { background: ${color} !important; }
+      button:not(.close-settings) { background: ${color} !important; }
       .choice-btn.active { background: ${color} !important; border-color: ${color}99 !important; }
       .settings-toggle { border-color: ${color} !important; color: ${color} !important; background: ${color}33 !important; }
       .settings-toggle:hover { background: ${color}4d !important; }
@@ -688,12 +683,6 @@ document.addEventListener("DOMContentLoaded", () => {
       depositAmount.value = "";
       saveSettings();
     }
-  });
-
-  resetBalance.addEventListener("click", () => {
-    balance = 1000;
-    updateBal();
-    saveSettings();
   });
 
   halfBet.addEventListener("click", () => {
