@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 
-const HOUSE_EDGE = 0.03;
+const HOUSE_EDGE = 0.20;
 const SERVER_SEED = process.env.SERVER_SEED || "super_secret_server_seed_change_me";
 let NONCE_COUNTER = 0;
 
