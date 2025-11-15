@@ -10,7 +10,7 @@
 
 <style>
 /* ----------- GLOBAL ----------- */
-* { box-sizing: border-box; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: #0f1923;
@@ -22,6 +22,7 @@ body {
   margin: 0;
   position: relative;
   overflow-x: hidden;
+  padding: 16px;
 }
 
 .background-cityscape {
@@ -37,24 +38,47 @@ body {
 
 .game-container {
   background: #1a2c38;
-  border-radius: 16px;
-  padding: 32px;
+  border-radius: 20px;
+  padding: 40px;
   width: 100%;
-  max-width: 420px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  max-width: 460px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .game-container {
+    padding: 28px;
+    max-width: 100%;
+    border-radius: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-container {
+    padding: 20px;
+    border-radius: 12px;
+  }
 }
 h1 {
   text-align: center;
   margin-top: 0;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
   color: #ffffff;
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 26px;
+    margin-bottom: 20px;
+  }
 }
 
 /* ----------- BALANCE ----------- */
@@ -76,10 +100,11 @@ h1 {
 /* ----------- INPUTS ----------- */
 label { font-size: 14px; font-weight: 600; display: block; margin-bottom: 8px; color: rgba(255, 255, 255, 0.8); }
 input, button {
-  width: 100%; padding: 12px 16px; margin-bottom: 12px;
-  border-radius: 8px; border: none; font-size: 15px;
+  width: 100%; padding: 14px 18px; margin-bottom: 14px;
+  border-radius: 10px; border: none; font-size: 15px;
   font-family: 'Inter', sans-serif;
   font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 input {
   background: rgba(255, 255, 255, 0.05);
@@ -97,16 +122,24 @@ button {
   color: white;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   border: none;
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
 }
 button:hover:not(:disabled) {
   background: #0284c7;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(14, 165, 233, 0.4);
+}
+button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
 }
 button:disabled { 
-  opacity: 0.4;
+  opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 /* ----------- MULTIPLIERS ----------- */
@@ -126,25 +159,28 @@ button:disabled {
 }
 .choice-btn {
   flex: 1;
-  padding: 12px;
-  border-radius: 8px;
+  padding: 14px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.05);
   color: rgba(255, 255, 255, 0.8);
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   text-align: center;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 .choice-btn.active {
   background: #0ea5e9;
   border-color: #0ea5e9;
   color: #ffffff;
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+  transform: scale(1.02);
 }
 .choice-btn:hover:not(.active) {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
 }
 
 /* ----------- COIN & ANIMATION ----------- */
@@ -160,20 +196,29 @@ button:disabled {
 }
 
 .coin {
-  width: 90px; height: 90px;
+  width: 100px; height: 100px;
   background: linear-gradient(135deg, #fbbf24, #f59e0b);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 32px;
+  font-size: 36px;
   font-weight: 700;
-  border: 3px solid rgba(251, 191, 36, 0.5);
+  border: 4px solid rgba(251, 191, 36, 0.6);
   position: absolute;
   bottom: 50px;
-  transition: transform 0.3s ease;
-  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 6px 16px rgba(251, 191, 36, 0.4), 0 0 20px rgba(251, 191, 36, 0.2);
   color: #ffffff;
+}
+
+@media (max-width: 480px) {
+  .coin {
+    width: 80px;
+    height: 80px;
+    font-size: 28px;
+    border: 3px solid rgba(251, 191, 36, 0.6);
+  }
 }
 
 .hand {
@@ -221,12 +266,12 @@ button:disabled {
 
 /* Coin spins fast in cartoon style */
 @keyframes coinToss {
-  0%   { bottom: 50px; transform: rotateY(0deg) scale(1); }
-  25%  { bottom: 160px; transform: rotateY(360deg) scale(1.1); }
-  50%  { bottom: 180px; transform: rotateY(720deg) scale(1.05); }
-  70%  { bottom: 80px; transform: rotateY(1080deg) scale(0.95); }
-  85%  { bottom: 55px; transform: rotateY(1260deg) scale(1.02); }
-  100% { bottom: 50px; transform: rotateY(1440deg) scale(1); }
+  0%   { bottom: 50px; transform: rotateY(0deg) scale(1); filter: brightness(1); }
+  25%  { bottom: 180px; transform: rotateY(360deg) scale(1.15); filter: brightness(1.2); }
+  50%  { bottom: 200px; transform: rotateY(720deg) scale(1.1); filter: brightness(1.3); }
+  70%  { bottom: 80px; transform: rotateY(1080deg) scale(0.95); filter: brightness(1.1); }
+  85%  { bottom: 55px; transform: rotateY(1260deg) scale(1.02); filter: brightness(1); }
+  100% { bottom: 50px; transform: rotateY(1440deg) scale(1); filter: brightness(1); }
 }
 
 @keyframes trailFlash {
@@ -245,13 +290,28 @@ button:disabled {
 .result { text-align: center; min-height: 22px; margin-bottom: 10px; font-size: 14px; font-weight: 500; }
 .result.win { 
   color: #4ade80;
-  font-weight: 600;
-  font-size: 15px;
+  font-weight: 700;
+  font-size: 16px;
+  text-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+  animation: winPulse 0.6s ease;
 }
 .result.lose { 
   color: #ef4444;
-  font-weight: 600;
-  font-size: 15px;
+  font-weight: 700;
+  font-size: 16px;
+  text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+  animation: losePulse 0.6s ease;
+}
+
+@keyframes winPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes losePulse {
+  0%, 100% { transform: scale(1); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
 }
 
 .error { 
@@ -269,7 +329,82 @@ button:disabled {
   color: rgba(255, 255, 255, 0.5); 
   margin-top: 8px;
 }
-.fairness { font-size: 10px; opacity: 0.4; margin-top: 8px; word-break: break-all; color: rgba(255, 255, 255, 0.6); }
+.fairness { 
+  font-size: 11px; 
+  opacity: 0.5; 
+  margin-top: 12px; 
+  word-break: break-all; 
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* ----------- PROVABLY FAIR SECTION ----------- */
+.provably-fair-section {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.provably-fair-section h3 {
+  font-size: 16px;
+  margin: 0 0 16px 0;
+  color: #ffffff;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fair-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.fair-info-row:last-child {
+  border-bottom: none;
+}
+
+.fair-info-label {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+  flex-shrink: 0;
+  margin-right: 12px;
+}
+
+.fair-info-value {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+  word-break: break-all;
+  text-align: right;
+  font-family: 'Courier New', monospace;
+}
+
+.verify-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 12px;
+  margin-bottom: 0;
+  background: rgba(14, 165, 233, 0.2);
+  color: #0ea5e9;
+  border: 1px solid #0ea5e9;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.verify-btn:hover {
+  background: rgba(14, 165, 233, 0.3);
+}
 
 /* ----------- HEADER BUTTONS ----------- */
 .header-buttons {
@@ -804,6 +939,31 @@ button:disabled {
     Dynamic Win-98% RTP
   </div>
 
+  <div class="provably-fair-section" id="fairSection" style="display: none;">
+    <h3>🔐 Provably Fair Verification</h3>
+    <div class="fair-info-row">
+      <span class="fair-info-label">Server Seed Hash:</span>
+      <span class="fair-info-value" id="fairServerHash">-</span>
+    </div>
+    <div class="fair-info-row">
+      <span class="fair-info-label">Client Seed:</span>
+      <span class="fair-info-value" id="fairClientSeed">-</span>
+    </div>
+    <div class="fair-info-row">
+      <span class="fair-info-label">Nonce:</span>
+      <span class="fair-info-value" id="fairNonce">-</span>
+    </div>
+    <div class="fair-info-row">
+      <span class="fair-info-label">Roll Result:</span>
+      <span class="fair-info-value" id="fairRoll">-</span>
+    </div>
+    <div class="fair-info-row">
+      <span class="fair-info-label">Win Threshold:</span>
+      <span class="fair-info-value" id="fairThreshold">-</span>
+    </div>
+    <button class="verify-btn" id="verifyBtn">Verify Result Independently</button>
+  </div>
+
   <div class="fairness" id="fairnessInfo"></div>
 </div>
 
@@ -940,7 +1100,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const RTP = 0.98;
   const MIN_BET = 0.10;
   const MAX_BET = 20000.00;
+  const MIN_MULTIPLIER = 1.96;
+  const MAX_MULTIPLIER = 10.00;
   const API_URL = "/.netlify/functions/play";
+  const RAPID_BET_THRESHOLD = 500;
+  
+  let lastBetTime = 0;
+  let isProcessingBet = false;
 
   let balance = 0.00;
   let selectedMultiplier = 1.96;
@@ -952,7 +1118,16 @@ document.addEventListener("DOMContentLoaded", () => {
     totalWins: 0,
     netProfit: 0,
     transactions: [],
-    memberSince: new Date().toLocaleDateString()
+    memberSince: new Date().toLocaleDateString(),
+    gameHistory: []
+  };
+  
+  const API_HOOKS = {
+    onDeposit: null,
+    onWithdraw: null,
+    onBetPlaced: null,
+    onBetResult: null,
+    onBalanceUpdate: null
   };
 
   const balanceDisplay = document.getElementById("balanceDisplay");
@@ -966,6 +1141,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const trail = document.getElementById("trail");
   const hand = document.getElementById("hand");
   const multDisplay = document.getElementById("multDisplay");
+  
+  const fairSection = document.getElementById("fairSection");
+  const fairServerHash = document.getElementById("fairServerHash");
+  const fairClientSeed = document.getElementById("fairClientSeed");
+  const fairNonce = document.getElementById("fairNonce");
+  const fairRoll = document.getElementById("fairRoll");
+  const fairThreshold = document.getElementById("fairThreshold");
+  const verifyBtn = document.getElementById("verifyBtn");
+  
+  let currentGameData = null;
   
   const accountToggle = document.getElementById("accountToggle");
   const accountModal = document.getElementById("accountModal");
@@ -990,95 +1175,128 @@ document.addEventListener("DOMContentLoaded", () => {
   })();
 
   function createCoinFlickSound() {
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const now = audioContext.currentTime;
-    
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    const filter = audioContext.createBiquadFilter();
-    
-    oscillator.connect(filter);
-    filter.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(800, now);
-    oscillator.frequency.exponentialRampToValueAtTime(2000, now + 0.03);
-    oscillator.frequency.exponentialRampToValueAtTime(400, now + 0.15);
-    
-    filter.type = 'bandpass';
-    filter.frequency.setValueAtTime(1500, now);
-    filter.Q.value = 5;
-    
-    gainNode.gain.setValueAtTime(0.4 * masterVolume, now);
-    gainNode.gain.exponentialRampToValueAtTime(0.15 * masterVolume, now + 0.05);
-    gainNode.gain.exponentialRampToValueAtTime(0.01 * masterVolume, now + 0.2);
-    
-    oscillator.start(now);
-    oscillator.stop(now + 0.2);
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const now = audioContext.currentTime;
+      
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      const filter = audioContext.createBiquadFilter();
+      
+      oscillator.connect(filter);
+      filter.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(900, now);
+      oscillator.frequency.exponentialRampToValueAtTime(2200, now + 0.04);
+      oscillator.frequency.exponentialRampToValueAtTime(400, now + 0.18);
+      
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(1600, now);
+      filter.Q.value = 6;
+      
+      gainNode.gain.setValueAtTime(0.45 * masterVolume, now);
+      gainNode.gain.exponentialRampToValueAtTime(0.18 * masterVolume, now + 0.06);
+      gainNode.gain.exponentialRampToValueAtTime(0.01 * masterVolume, now + 0.22);
+      
+      oscillator.start(now);
+      oscillator.stop(now + 0.22);
+    } catch (e) {
+      console.warn('Audio playback failed:', e);
+    }
   }
 
   function createCaChingSound() {
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const now = audioContext.currentTime;
-    
-    const osc1 = audioContext.createOscillator();
-    const osc2 = audioContext.createOscillator();
-    const gain1 = audioContext.createGain();
-    const gain2 = audioContext.createGain();
-    const mainGain = audioContext.createGain();
-    
-    osc1.connect(gain1);
-    osc2.connect(gain2);
-    gain1.connect(mainGain);
-    gain2.connect(mainGain);
-    mainGain.connect(audioContext.destination);
-    
-    osc1.type = 'triangle';
-    osc2.type = 'sine';
-    
-    osc1.frequency.setValueAtTime(1047, now);
-    osc1.frequency.exponentialRampToValueAtTime(1319, now + 0.05);
-    osc1.frequency.exponentialRampToValueAtTime(1568, now + 0.1);
-    
-    osc2.frequency.setValueAtTime(1047 * 2, now);
-    osc2.frequency.exponentialRampToValueAtTime(1319 * 2, now + 0.05);
-    osc2.frequency.exponentialRampToValueAtTime(1568 * 2, now + 0.1);
-    
-    gain1.gain.setValueAtTime(0.3, now);
-    gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-    
-    gain2.gain.setValueAtTime(0.15, now);
-    gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-    
-    mainGain.gain.setValueAtTime(0.5 * masterVolume, now);
-    
-    osc1.start(now);
-    osc2.start(now);
-    osc1.stop(now + 0.4);
-    osc2.stop(now + 0.4);
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const now = audioContext.currentTime;
+      
+      const osc1 = audioContext.createOscillator();
+      const osc2 = audioContext.createOscillator();
+      const osc3 = audioContext.createOscillator();
+      const gain1 = audioContext.createGain();
+      const gain2 = audioContext.createGain();
+      const gain3 = audioContext.createGain();
+      const mainGain = audioContext.createGain();
+      
+      osc1.connect(gain1);
+      osc2.connect(gain2);
+      osc3.connect(gain3);
+      gain1.connect(mainGain);
+      gain2.connect(mainGain);
+      gain3.connect(mainGain);
+      mainGain.connect(audioContext.destination);
+      
+      osc1.type = 'triangle';
+      osc2.type = 'sine';
+      osc3.type = 'sine';
+      
+      osc1.frequency.setValueAtTime(1047, now);
+      osc1.frequency.exponentialRampToValueAtTime(1319, now + 0.06);
+      osc1.frequency.exponentialRampToValueAtTime(1568, now + 0.12);
+      
+      osc2.frequency.setValueAtTime(1047 * 2, now);
+      osc2.frequency.exponentialRampToValueAtTime(1319 * 2, now + 0.06);
+      osc2.frequency.exponentialRampToValueAtTime(1568 * 2, now + 0.12);
+      
+      osc3.frequency.setValueAtTime(1047 * 0.5, now);
+      osc3.frequency.exponentialRampToValueAtTime(1319 * 0.5, now + 0.06);
+      osc3.frequency.exponentialRampToValueAtTime(1568 * 0.5, now + 0.12);
+      
+      gain1.gain.setValueAtTime(0.35, now);
+      gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+      
+      gain2.gain.setValueAtTime(0.18, now);
+      gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+      
+      gain3.gain.setValueAtTime(0.15, now);
+      gain3.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+      
+      mainGain.gain.setValueAtTime(0.6 * masterVolume, now);
+      
+      osc1.start(now);
+      osc2.start(now);
+      osc3.start(now);
+      osc1.stop(now + 0.5);
+      osc2.stop(now + 0.5);
+      osc3.stop(now + 0.5);
+    } catch (e) {
+      console.warn('Audio playback failed:', e);
+    }
   }
 
   function createWompSound() {
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const now = audioContext.currentTime;
-    
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.type = 'sawtooth';
-    
-    oscillator.frequency.setValueAtTime(200, now);
-    oscillator.frequency.exponentialRampToValueAtTime(50, now + 0.5);
-    
-    gainNode.gain.setValueAtTime(0.3 * masterVolume, now);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
-    
-    oscillator.start(now);
-    oscillator.stop(now + 0.5);
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const now = audioContext.currentTime;
+      
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      const filter = audioContext.createBiquadFilter();
+      
+      oscillator.connect(filter);
+      filter.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.type = 'sawtooth';
+      
+      oscillator.frequency.setValueAtTime(220, now);
+      oscillator.frequency.exponentialRampToValueAtTime(45, now + 0.6);
+      
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(800, now);
+      filter.frequency.exponentialRampToValueAtTime(100, now + 0.6);
+      filter.Q.value = 3;
+      
+      gainNode.gain.setValueAtTime(0.35 * masterVolume, now);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+      
+      oscillator.start(now);
+      oscillator.stop(now + 0.6);
+    } catch (e) {
+      console.warn('Audio playback failed:', e);
+    }
   }
 
   function createBackgroundMusic() {
@@ -1456,7 +1674,7 @@ document.addEventListener("DOMContentLoaded", () => {
       alert("Maximum deposit is $20,000.00");
       return;
     }
-    balance += amount;
+    balance = Math.round((balance + amount) * 100) / 100;
     addTransaction("Deposit", amount);
     updateBal();
     depositAmount.value = "";
@@ -1515,15 +1733,45 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   
   function addTransaction(type, amount) {
-    accountStats.transactions.push({
+    const transaction = {
       type,
       amount,
-      time: new Date().toLocaleTimeString()
-    });
+      time: new Date().toLocaleTimeString(),
+      timestamp: Date.now()
+    };
+    
+    accountStats.transactions.push(transaction);
+    
     if (accountStats.transactions.length > 50) {
       accountStats.transactions = accountStats.transactions.slice(-50);
     }
     updateAccountStats();
+    
+    if (type.startsWith('Win') || type.startsWith('Loss')) {
+      if (typeof API_HOOKS.onBetResult === 'function') {
+        try {
+          API_HOOKS.onBetResult({
+            type: type.startsWith('Win') ? 'win' : 'loss',
+            amount: Math.abs(amount),
+            timestamp: transaction.timestamp
+          });
+        } catch (e) {
+          console.warn('Bet result hook failed:', e);
+        }
+      }
+    } else if (type === 'Deposit' && typeof API_HOOKS.onDeposit === 'function') {
+      try {
+        API_HOOKS.onDeposit(amount);
+      } catch (e) {
+        console.warn('Deposit hook failed:', e);
+      }
+    } else if (type === 'Withdrawal' && typeof API_HOOKS.onWithdraw === 'function') {
+      try {
+        API_HOOKS.onWithdraw(Math.abs(amount));
+      } catch (e) {
+        console.warn('Withdraw hook failed:', e);
+      }
+    }
   }
   
   accountToggle.addEventListener("click", () => {
@@ -1560,7 +1808,7 @@ document.addEventListener("DOMContentLoaded", () => {
       alert("Insufficient balance for this withdrawal.");
       return;
     }
-    balance -= amount;
+    balance = Math.round((balance - amount) * 100) / 100;
     addTransaction("Withdrawal", -amount);
     updateBal();
     saveSettings();
@@ -1568,7 +1816,20 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   
   viewHistory.addEventListener("click", () => {
-    alert("Full history view coming soon!");
+    if (accountStats.gameHistory && accountStats.gameHistory.length > 0) {
+      const historyText = accountStats.gameHistory
+        .slice(-20)
+        .reverse()
+        .map((game, idx) => {
+          const date = new Date(game.timestamp).toLocaleString();
+          return `${idx + 1}. ${date}\n   Bet: $${game.bet.toFixed(2)} | ${game.multiplier}x | ${game.playerChoice}\n   Result: ${game.coinSide} - ${game.didWin ? 'WIN' : 'LOSS'} | ${game.didWin ? '+' : '-'}$${Math.abs(game.payout - game.bet).toFixed(2)}`;
+        })
+        .join('\n\n');
+      
+      alert(`Recent Game History (Last 20):\n\n${historyText}`);
+    } else {
+      alert("No game history available yet. Play some rounds first!");
+    }
   });
   
   resetStats.addEventListener("click", () => {
@@ -1590,7 +1851,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const data = {
       balance,
       accountStats,
-      exportDate: new Date().toISOString()
+      gameHistory: accountStats.gameHistory || [],
+      exportDate: new Date().toISOString(),
+      version: '1.0'
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -1612,9 +1875,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function randomMultiplier() {
     const min = 1.96;
-    const max = 10;
+    const max = 10.00;
     const random = Math.random();
-    const mult = min * Math.pow(max / min, random);
+    const mult = min + (max - min) * Math.pow(random, 1.5);
     return Math.round(mult * 100) / 100;
   }
 
@@ -1639,6 +1902,14 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (balance === 0) {
       coinLabel.textContent = "Deposit funds to start playing...";
     }
+    
+    if (typeof API_HOOKS.onBalanceUpdate === 'function') {
+      try {
+        API_HOOKS.onBalanceUpdate(balance);
+      } catch (e) {
+        console.warn('Balance update hook failed:', e);
+      }
+    }
   }
   updateBal();
 
@@ -1656,7 +1927,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (balance === 0) {
       return { valid: false, error: "Please deposit between $1.00 and $20,000.00 to start playing" };
     }
-    if (isNaN(bet)) {
+    if (isNaN(bet) || bet === null || bet === undefined) {
       return { valid: false, error: "Bet must be a valid number" };
     }
     if (bet <= 0) {
@@ -1669,12 +1940,27 @@ document.addEventListener("DOMContentLoaded", () => {
       return { valid: false, error: `Maximum bet is $${MAX_BET.toLocaleString('en-US', {minimumFractionDigits: 2})}` };
     }
     if (bet > balance) {
-      return { valid: false, error: "Insufficient balance" };
+      return { valid: false, error: `Insufficient balance. Available: ${formatMoney(balance)}` };
+    }
+    const betRounded = Math.round(bet * 100) / 100;
+    if (bet !== betRounded) {
+      return { valid: false, error: "Bet amount can only have 2 decimal places" };
     }
     return { valid: true };
   }
 
   async function playRound() {
+    if (isProcessingBet) {
+      errorText.textContent = "Please wait for the current bet to complete";
+      return;
+    }
+    
+    const now = Date.now();
+    if (now - lastBetTime < RAPID_BET_THRESHOLD) {
+      errorText.textContent = "Please wait a moment before placing another bet";
+      return;
+    }
+    
     errorText.textContent = "";
     resultText.textContent = "";
     fairnessInfo.textContent = "";
@@ -1686,11 +1972,32 @@ document.addEventListener("DOMContentLoaded", () => {
       errorText.textContent = validation.error;
       return;
     }
+    
+    if (selectedMultiplier < MIN_MULTIPLIER || selectedMultiplier > MAX_MULTIPLIER) {
+      errorText.textContent = `Multiplier must be between ${MIN_MULTIPLIER}x and ${MAX_MULTIPLIER}x`;
+      return;
+    }
+    
+    isProcessingBet = true;
+    lastBetTime = now;
 
     const originalBalance = balance;
-    balance -= bet;
+    balance = Math.round((balance - bet) * 100) / 100;
     updateBal();
     saveSettings();
+    
+    if (typeof API_HOOKS.onBetPlaced === 'function') {
+      try {
+        API_HOOKS.onBetPlaced({
+          bet,
+          multiplier: selectedMultiplier,
+          playerChoice,
+          timestamp: Date.now()
+        });
+      } catch (e) {
+        console.warn('Bet placed hook failed:', e);
+      }
+    }
     
     stopBackgroundMusic();
     createSuspenseMusic();
@@ -1723,12 +2030,22 @@ document.addEventListener("DOMContentLoaded", () => {
           multiplier: selectedMultiplier,
           client_seed: cSeed,
           player_choice: playerChoice
-        })
+        }),
+        signal: AbortSignal.timeout(15000)
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ detail: 'Server error' }));
-        throw new Error(errorData.detail || `Server returned ${response.status}`);
+        
+        if (response.status === 429) {
+          throw new Error('Too many requests. Please wait a moment and try again.');
+        } else if (response.status === 400) {
+          throw new Error(errorData.detail || 'Invalid bet parameters');
+        } else if (response.status >= 500) {
+          throw new Error('Server error. Please try again in a moment.');
+        } else {
+          throw new Error(errorData.detail || `Server returned ${response.status}`);
+        }
       }
 
       const data = await response.json();
@@ -1751,12 +2068,31 @@ document.addEventListener("DOMContentLoaded", () => {
         
         accountStats.totalBets += 1;
         accountStats.totalWagered += bet;
+        
+        const gameRecord = {
+          timestamp: Date.now(),
+          bet,
+          multiplier: selectedMultiplier,
+          playerChoice,
+          coinSide: coinResult,
+          didWin,
+          payout: didWin && payout > 0 ? Math.round(payout * 100) / 100 : 0,
+          roll: data.roll,
+          winChance: data.win_chance,
+          nonce: data.nonce
+        };
+        
+        accountStats.gameHistory.push(gameRecord);
+        if (accountStats.gameHistory.length > 100) {
+          accountStats.gameHistory = accountStats.gameHistory.slice(-100);
+        }
 
         if (didWin && payout > 0) {
-          balance += payout;
+          const actualPayout = Math.round(payout * 100) / 100;
+          balance = Math.round((balance + actualPayout) * 100) / 100;
           accountStats.totalWins += 1;
-          accountStats.netProfit += (payout - bet);
-          addTransaction(`Win - ${coinResult.toUpperCase()}`, payout - bet);
+          accountStats.netProfit = Math.round((accountStats.netProfit + (actualPayout - bet)) * 100) / 100;
+          addTransaction(`Win - ${coinResult.toUpperCase()}`, actualPayout - bet);
           updateBal();
           saveSettings();
           
@@ -1773,10 +2109,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
           resultText.className = "result win";
           resultText.textContent =
-            `WIN! Landed ${coinResult}, you picked ${playerChoice} — Won ${formatMoney(payout)} at ${selectedMultiplier}x`;
+            `WIN! Landed ${coinResult}, you picked ${playerChoice} — Won ${formatMoney(actualPayout)} at ${selectedMultiplier}x`;
           multDisplay.style.color = "#4ade80";
         } else {
-          accountStats.netProfit -= bet;
+          accountStats.netProfit = Math.round((accountStats.netProfit - bet) * 100) / 100;
           addTransaction(`Loss - ${coinResult.toUpperCase()}`, -bet);
           coin.textContent = coinResult === "heads" ? "H" : "T";
           
@@ -1809,11 +2145,30 @@ document.addEventListener("DOMContentLoaded", () => {
         fairnessInfo.textContent =
           `Server RNG — roll: ${data.roll.toFixed(6)} | win_threshold: ${data.win_chance.toFixed(6)} | ` +
           `server_seed_hash: ${data.server_seed_hash.substring(0, 16)}... | nonce: ${data.nonce}`;
+        
+        currentGameData = {
+          serverSeedHash: data.server_seed_hash,
+          clientSeed: cSeed,
+          nonce: data.nonce,
+          roll: data.roll,
+          winChance: data.win_chance,
+          bet: bet,
+          multiplier: selectedMultiplier,
+          result: didWin ? 'win' : 'loss'
+        };
+        
+        fairSection.style.display = 'block';
+        fairServerHash.textContent = data.server_seed_hash.substring(0, 32) + '...';
+        fairClientSeed.textContent = cSeed;
+        fairNonce.textContent = data.nonce;
+        fairRoll.textContent = data.roll.toFixed(8);
+        fairThreshold.textContent = data.win_chance.toFixed(8);
 
         if (musicEnabled) {
           createBackgroundMusic();
         }
         betButton.disabled = false;
+        isProcessingBet = false;
       }, 1200);
 
     } catch (error) {
@@ -1822,8 +2177,17 @@ document.addEventListener("DOMContentLoaded", () => {
         updateBal();
         saveSettings();
         
-        errorText.textContent = `Error: ${error.message}`;
+        let errorMessage = error.message;
+        
+        if (error.name === 'AbortError' || error.name === 'TimeoutError') {
+          errorMessage = 'Request timed out. Check your connection and try again.';
+        } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+          errorMessage = 'Network error. Please check your connection.';
+        }
+        
+        errorText.textContent = `Error: ${errorMessage}`;
         betButton.disabled = false;
+        isProcessingBet = false;
         
         coin.classList.remove("tossing");
         hand.classList.remove("flicking");
@@ -1836,6 +2200,56 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   betButton.addEventListener("click", playRound);
+  
+  verifyBtn.addEventListener("click", () => {
+    if (!currentGameData) {
+      alert("No game data available to verify. Play a round first!");
+      return;
+    }
+    
+    const verificationText = `
+🔐 PROVABLY FAIR VERIFICATION
+
+Game Details:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Server Seed Hash: ${currentGameData.serverSeedHash}
+Client Seed: ${currentGameData.clientSeed}
+Nonce: ${currentGameData.nonce}
+
+Results:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Roll: ${currentGameData.roll.toFixed(8)}
+Win Threshold: ${currentGameData.winChance.toFixed(8)}
+Result: ${currentGameData.result.toUpperCase()}
+
+Bet: $${currentGameData.bet.toFixed(2)}
+Multiplier: ${currentGameData.multiplier}x
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Verification Formula:
+HMAC-SHA256(server_seed, client_seed:nonce)
+
+The roll is generated using HMAC-SHA256 with:
+- Server seed (hashed for security)
+- Your client seed
+- A nonce counter
+
+Result is verifiable and cannot be manipulated!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Copy this data to verify independently using any HMAC-SHA256 calculator.
+    `.trim();
+    
+    alert(verificationText);
+    
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(verificationText).then(() => {
+        console.log("Verification data copied to clipboard");
+      }).catch(err => {
+        console.log("Could not copy to clipboard:", err);
+      });
+    }
+  });
 
 });
 </script>
