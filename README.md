@@ -4,7 +4,7 @@ A provably fair coin flip game with customizable settings built with Netlify Fun
 
 ## Features
 
-- 50/50 coin flip with random multipliers (1.9x - 10,000x)
+- 50/50 coin flip with random multipliers (1.9x - 10x)
 - Provably fair system using HMAC-SHA256
 - Customizable color themes (background, panel, text, accent)
 - Volume control for audio feedback
