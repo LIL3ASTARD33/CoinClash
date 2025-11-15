@@ -2141,12 +2141,18 @@ document.addEventListener("DOMContentLoaded", () => {
           multDisplay.textContent = "1.2x - 10x";
           multDisplay.style.color = "#ef4444";
           
+          coin.classList.remove('hidden');
+          coin.textContent = coinResult === "heads" ? "H" : "T";
+          
           if (musicEnabled) {
             createBackgroundMusic();
           }
           betButton.disabled = false;
           isProcessingBet = false;
         } else {
+          accountStats.totalWins += 1;
+          accountStats.netProfit = Math.round((accountStats.netProfit + bet) * 100) / 100;
+          
           coinLabel.textContent = `${coinResult.charAt(0).toUpperCase() + coinResult.slice(1)} — You win!`;
           createCheerfulMusic();
           createCaChingSound();
