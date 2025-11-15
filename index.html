@@ -256,11 +256,15 @@ button:disabled {
 }
 .fairness { font-size: 10px; opacity: 0.4; margin-top: 8px; word-break: break-all; color: rgba(255, 255, 255, 0.6); }
 
-/* ----------- SETTINGS BUTTON ----------- */
-.settings-toggle {
+/* ----------- HEADER BUTTONS ----------- */
+.header-buttons {
   position: absolute;
   top: 20px;
   right: 20px;
+  display: flex;
+  gap: 8px;
+}
+.settings-toggle, .account-toggle {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: rgba(255, 255, 255, 0.8);
@@ -274,7 +278,7 @@ button:disabled {
   justify-content: center;
   transition: all 0.2s ease;
 }
-.settings-toggle:hover {
+.settings-toggle:hover, .account-toggle:hover {
   background: rgba(255, 255, 255, 0.15);
   border-color: rgba(255, 255, 255, 0.3);
 }
@@ -401,6 +405,194 @@ button:disabled {
   padding: 10px 16px;
 }
 
+/* ----------- ACCOUNT CENTER MODAL ----------- */
+.account-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+.account-modal.active {
+  display: flex;
+}
+.account-panel {
+  background: #1a2c38;
+  border-radius: 16px;
+  padding: 28px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  max-height: 85vh;
+  overflow-y: auto;
+}
+.account-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.account-header h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+}
+.close-account {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+  width: 36px;
+  height: 36px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 400;
+  transition: all 0.2s ease;
+}
+.close-account:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+.account-section {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.account-section h3 {
+  font-size: 16px;
+  margin: 0 0 16px 0;
+  color: #ffffff;
+  font-weight: 700;
+}
+.account-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.account-info-row:last-child {
+  border-bottom: none;
+}
+.account-info-label {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+}
+.account-info-value {
+  font-size: 14px;
+  color: #ffffff;
+  font-weight: 600;
+}
+.account-info-value.highlight {
+  color: #4ade80;
+  font-size: 18px;
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+.stat-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.stat-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.stat-value {
+  font-size: 18px;
+  color: #ffffff;
+  font-weight: 700;
+}
+.transaction-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+.transaction-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.transaction-item:last-child {
+  border-bottom: none;
+}
+.transaction-type {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+}
+.transaction-amount {
+  font-size: 14px;
+  font-weight: 600;
+}
+.transaction-amount.positive {
+  color: #4ade80;
+}
+.transaction-amount.negative {
+  color: #ef4444;
+}
+.transaction-time {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 2px;
+}
+.action-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+.action-btn {
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.2s ease;
+  text-align: center;
+  width: 100%;
+  margin: 0;
+}
+.action-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+.action-btn.primary {
+  background: #0ea5e9;
+  border-color: #0ea5e9;
+}
+.action-btn.primary:hover {
+  background: #0284c7;
+  border-color: #0284c7;
+}
+
 /* ----------- BET MULTIPLIER BUTTONS ----------- */
 .bet-multipliers {
   display: flex;
@@ -429,7 +621,10 @@ button:disabled {
 
 <body>
 <div class="game-container">
-  <button class="settings-toggle" id="settingsToggle">⚙️</button>
+  <div class="header-buttons">
+    <button class="account-toggle" id="accountToggle">👤</button>
+    <button class="settings-toggle" id="settingsToggle">⚙️</button>
+  </div>
   <h1>Coin Clash</h1>
 
   <div class="balance-row">
@@ -473,6 +668,72 @@ button:disabled {
   </div>
 
   <div class="fairness" id="fairnessInfo"></div>
+</div>
+
+<div class="account-modal" id="accountModal">
+  <div class="account-panel">
+    <div class="account-header">
+      <h2>Account Center</h2>
+      <button class="close-account" id="closeAccount">×</button>
+    </div>
+
+    <div class="account-section">
+      <h3>Account Overview</h3>
+      <div class="account-info-row">
+        <span class="account-info-label">Current Balance</span>
+        <span class="account-info-value highlight" id="accountBalance">$1,000.00</span>
+      </div>
+      <div class="account-info-row">
+        <span class="account-info-label">Account ID</span>
+        <span class="account-info-value" id="accountId">Guest</span>
+      </div>
+      <div class="account-info-row">
+        <span class="account-info-label">Member Since</span>
+        <span class="account-info-value" id="memberSince">Today</span>
+      </div>
+    </div>
+
+    <div class="account-section">
+      <h3>Statistics</h3>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Bets</div>
+          <div class="stat-value" id="totalBets">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Wagered</div>
+          <div class="stat-value" id="totalWagered">$0.00</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Win Rate</div>
+          <div class="stat-value" id="winRate">0%</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Net Profit</div>
+          <div class="stat-value" id="netProfit">$0.00</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="account-section">
+      <h3>Recent Transactions</h3>
+      <div class="transaction-list" id="transactionList">
+        <div style="text-align: center; padding: 20px; color: rgba(255, 255, 255, 0.5);">
+          No transactions yet
+        </div>
+      </div>
+    </div>
+
+    <div class="account-section">
+      <h3>Quick Actions</h3>
+      <div class="action-buttons">
+        <button class="action-btn primary" id="quickDeposit">💰 Deposit</button>
+        <button class="action-btn" id="viewHistory">📊 History</button>
+        <button class="action-btn" id="resetStats">🔄 Reset Stats</button>
+        <button class="action-btn" id="exportData">📥 Export</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="settings-modal" id="settingsModal">
@@ -535,6 +796,15 @@ document.addEventListener("DOMContentLoaded", () => {
   let balance = 1000.00;
   let selectedMultiplier = 1.96;
   let playerChoice = "heads";
+  
+  let accountStats = {
+    totalBets: 0,
+    totalWagered: 0,
+    totalWins: 0,
+    netProfit: 0,
+    transactions: [],
+    memberSince: new Date().toLocaleDateString()
+  };
 
   const balanceDisplay = document.getElementById("balanceDisplay");
   const betAmount = document.getElementById("betAmount");
@@ -547,6 +817,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const trail = document.getElementById("trail");
   const hand = document.getElementById("hand");
   const multDisplay = document.getElementById("multDisplay");
+  
+  const accountToggle = document.getElementById("accountToggle");
+  const accountModal = document.getElementById("accountModal");
+  const closeAccount = document.getElementById("closeAccount");
+  const accountBalance = document.getElementById("accountBalance");
+  const totalBets = document.getElementById("totalBets");
+  const totalWagered = document.getElementById("totalWagered");
+  const winRate = document.getElementById("winRate");
+  const netProfit = document.getElementById("netProfit");
+  const transactionList = document.getElementById("transactionList");
+  const memberSince = document.getElementById("memberSince");
+  const quickDeposit = document.getElementById("quickDeposit");
+  const viewHistory = document.getElementById("viewHistory");
+  const resetStats = document.getElementById("resetStats");
+  const exportData = document.getElementById("exportData");
 
   (function checkIntegrity() {
     if (typeof playRound !== 'function' || typeof fetch !== 'function') {
@@ -673,7 +958,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       if (settings.colorPanel) {
         colorPanel.value = settings.colorPanel;
-        const containers = document.querySelectorAll(".game-container, .settings-panel");
+        const containers = document.querySelectorAll(".game-container, .settings-panel, .account-panel");
         containers.forEach(container => {
           container.style.background = settings.colorPanel;
         });
@@ -695,6 +980,10 @@ document.addEventListener("DOMContentLoaded", () => {
         balance = settings.balance;
         updateBal();
       }
+      if (settings.accountStats) {
+        accountStats = settings.accountStats;
+        updateAccountStats();
+      }
     } else {
       applyAccentColor('#0ea5e9');
     }
@@ -707,7 +996,8 @@ document.addEventListener("DOMContentLoaded", () => {
       colorText: colorText.value,
       colorAccent: colorAccent.value,
       volume: parseInt(volumeSlider.value),
-      balance: balance
+      balance: balance,
+      accountStats: accountStats
     };
     localStorage.setItem("coinClashSettings", JSON.stringify(settings));
   }
@@ -781,6 +1071,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const amount = parseFloat(depositAmount.value);
     if (!isNaN(amount) && amount > 0) {
       balance += amount;
+      addTransaction("Deposit", amount);
       updateBal();
       depositAmount.value = "";
       saveSettings();
@@ -800,6 +1091,105 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   loadSettings();
+  
+  function updateAccountStats() {
+    accountBalance.textContent = formatMoney(balance);
+    totalBets.textContent = accountStats.totalBets;
+    totalWagered.textContent = formatMoney(accountStats.totalWagered);
+    
+    const winRatePercent = accountStats.totalBets > 0 
+      ? ((accountStats.totalWins / accountStats.totalBets) * 100).toFixed(1)
+      : "0.0";
+    winRate.textContent = winRatePercent + "%";
+    
+    netProfit.textContent = formatMoney(accountStats.netProfit);
+    memberSince.textContent = accountStats.memberSince;
+    
+    if (accountStats.transactions.length > 0) {
+      transactionList.innerHTML = accountStats.transactions
+        .slice(-10)
+        .reverse()
+        .map(tx => `
+          <div class="transaction-item">
+            <div>
+              <div class="transaction-type">${tx.type}</div>
+              <div class="transaction-time">${tx.time}</div>
+            </div>
+            <div class="transaction-amount ${tx.amount >= 0 ? 'positive' : 'negative'}">
+              ${tx.amount >= 0 ? '+' : ''}${formatMoney(Math.abs(tx.amount))}
+            </div>
+          </div>
+        `).join('');
+    } else {
+      transactionList.innerHTML = '<div style="text-align: center; padding: 20px; color: rgba(255, 255, 255, 0.5);">No transactions yet</div>';
+    }
+  }
+  
+  function addTransaction(type, amount) {
+    accountStats.transactions.push({
+      type,
+      amount,
+      time: new Date().toLocaleTimeString()
+    });
+    if (accountStats.transactions.length > 50) {
+      accountStats.transactions = accountStats.transactions.slice(-50);
+    }
+    updateAccountStats();
+  }
+  
+  accountToggle.addEventListener("click", () => {
+    accountModal.classList.add("active");
+    updateAccountStats();
+  });
+  
+  closeAccount.addEventListener("click", () => {
+    accountModal.classList.remove("active");
+  });
+  
+  accountModal.addEventListener("click", (e) => {
+    if (e.target === accountModal) {
+      accountModal.classList.remove("active");
+    }
+  });
+  
+  quickDeposit.addEventListener("click", () => {
+    accountModal.classList.remove("active");
+    settingsModal.classList.add("active");
+  });
+  
+  viewHistory.addEventListener("click", () => {
+    alert("Full history view coming soon!");
+  });
+  
+  resetStats.addEventListener("click", () => {
+    if (confirm("Are you sure you want to reset all statistics? This cannot be undone.")) {
+      accountStats = {
+        totalBets: 0,
+        totalWagered: 0,
+        totalWins: 0,
+        netProfit: 0,
+        transactions: [],
+        memberSince: accountStats.memberSince
+      };
+      updateAccountStats();
+      saveSettings();
+    }
+  });
+  
+  exportData.addEventListener("click", () => {
+    const data = {
+      balance,
+      accountStats,
+      exportDate: new Date().toISOString()
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `coinclash-data-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
 
   const choiceButtons = document.querySelectorAll(".choice-btn");
   choiceButtons.forEach(btn => {
@@ -819,7 +1209,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function formatMoney(v) { return "$" + v.toFixed(2); }
-  function updateBal() { balanceDisplay.textContent = formatMoney(balance); }
+  function updateBal() { 
+    balanceDisplay.textContent = formatMoney(balance);
+    if (accountBalance) {
+      accountBalance.textContent = formatMoney(balance);
+    }
+  }
   updateBal();
 
   function clientSeed() {
@@ -922,9 +1317,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const coinResult = data.coin_side;
         const didWin = data.did_win;
         const payout = data.payout;
+        
+        accountStats.totalBets += 1;
+        accountStats.totalWagered += bet;
 
         if (didWin && payout > 0) {
           balance += payout;
+          accountStats.totalWins += 1;
+          accountStats.netProfit += (payout - bet);
+          addTransaction(`Win - ${coinResult.toUpperCase()}`, payout - bet);
           updateBal();
           saveSettings();
           
@@ -937,6 +1338,8 @@ document.addEventListener("DOMContentLoaded", () => {
             `WIN! Landed ${coinResult}, you picked ${playerChoice} — Won ${formatMoney(payout)} at ${selectedMultiplier}x`;
           multDisplay.style.color = "#4ade80";
         } else {
+          accountStats.netProfit -= bet;
+          addTransaction(`Loss - ${coinResult.toUpperCase()}`, -bet);
           coin.textContent = coinResult === "heads" ? "H" : "T";
           
           coinLabel.textContent = `${coinResult.charAt(0).toUpperCase() + coinResult.slice(1)} — You lose.`;
@@ -946,6 +1349,8 @@ document.addEventListener("DOMContentLoaded", () => {
           resultText.textContent = `LOSS. Landed ${coinResult}, you picked ${playerChoice}`;
           multDisplay.style.color = "#ef4444";
         }
+        
+        saveSettings();
 
         fairnessInfo.textContent =
           `Server RNG — roll: ${data.roll.toFixed(6)} | win_threshold: ${data.win_chance.toFixed(6)} | ` +
