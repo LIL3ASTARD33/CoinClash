@@ -1164,6 +1164,10 @@ document.addEventListener("DOMContentLoaded", () => {
     gameHistory: []
   };
   
+  if (!accountStats.gameHistory) {
+    accountStats.gameHistory = [];
+  }
+  
   const API_HOOKS = {
     onDeposit: null,
     onWithdraw: null,
@@ -1601,6 +1605,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       if (settings.accountStats) {
         accountStats = settings.accountStats;
+        if (!accountStats.gameHistory) {
+          accountStats.gameHistory = [];
+        }
         updateAccountStats();
       }
     } else {
@@ -2033,7 +2040,6 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         API_HOOKS.onBetPlaced({
           bet,
-          multiplier: selectedMultiplier,
           playerChoice,
           timestamp: Date.now()
         });
@@ -2312,7 +2318,8 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         body: JSON.stringify({
           mode: 'ladder_step',
-          ladder_session_id: ladderSession.sessionId
+          ladder_session_id: ladderSession.sessionId,
+          player_choice: playerChoice
         }),
         signal: AbortSignal.timeout(5000)
       });
