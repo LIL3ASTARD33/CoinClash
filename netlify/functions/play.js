@@ -9,8 +9,8 @@ const SERVER_SEED = process.env.SERVER_SEED || "super_secret_server_seed_change_
 let NONCE_COUNTER = 0;
 
 const rateLimitStore = new Map();
-const RATE_LIMIT_WINDOW = 2000;
-const RATE_LIMIT_MAX = 5;
+const RATE_LIMIT_WINDOW = 1000;
+const RATE_LIMIT_MAX = 8;
 
 function getServerSeedHash(serverSeed) {
   return crypto.createHash('sha256').update(serverSeed).digest('hex');

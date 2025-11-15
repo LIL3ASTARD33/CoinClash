@@ -939,6 +939,10 @@ button:disabled {
     Dynamic Win-98% RTP
   </div>
 
+  <button class="verify-btn" id="toggleFairSection" style="margin-top: 16px; margin-bottom: 0; background: rgba(14, 165, 233, 0.15); color: #0ea5e9; border: 1px solid rgba(14, 165, 233, 0.3);">
+    🔐 Show Provably Fair Details
+  </button>
+
   <div class="provably-fair-section" id="fairSection" style="display: none;">
     <h3>🔐 Provably Fair Verification</h3>
     <div class="fair-info-row">
@@ -1103,7 +1107,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const MIN_MULTIPLIER = 1.96;
   const MAX_MULTIPLIER = 10.00;
   const API_URL = "/.netlify/functions/play";
-  const RAPID_BET_THRESHOLD = 500;
+  const RAPID_BET_THRESHOLD = 100;
   
   let lastBetTime = 0;
   let isProcessingBet = false;
@@ -1149,8 +1153,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const fairRoll = document.getElementById("fairRoll");
   const fairThreshold = document.getElementById("fairThreshold");
   const verifyBtn = document.getElementById("verifyBtn");
+  const toggleFairSection = document.getElementById("toggleFairSection");
   
   let currentGameData = null;
+  let fairSectionVisible = false;
   
   const accountToggle = document.getElementById("accountToggle");
   const accountModal = document.getElementById("accountModal");
@@ -2031,7 +2037,7 @@ document.addEventListener("DOMContentLoaded", () => {
           client_seed: cSeed,
           player_choice: playerChoice
         }),
-        signal: AbortSignal.timeout(15000)
+        signal: AbortSignal.timeout(5000)
       });
 
       if (!response.ok) {
@@ -2157,7 +2163,6 @@ document.addEventListener("DOMContentLoaded", () => {
           result: didWin ? 'win' : 'loss'
         };
         
-        fairSection.style.display = 'block';
         fairServerHash.textContent = data.server_seed_hash.substring(0, 32) + '...';
         fairClientSeed.textContent = cSeed;
         fairNonce.textContent = data.nonce;
@@ -2169,7 +2174,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         betButton.disabled = false;
         isProcessingBet = false;
-      }, 1200);
+      }, 800);
 
     } catch (error) {
       setTimeout(() => {
@@ -2195,11 +2200,22 @@ document.addEventListener("DOMContentLoaded", () => {
         if (musicEnabled) {
           createBackgroundMusic();
         }
-      }, 1200);
+      }, 800);
     }
   }
 
   betButton.addEventListener("click", playRound);
+  
+  toggleFairSection.addEventListener("click", () => {
+    fairSectionVisible = !fairSectionVisible;
+    if (fairSectionVisible) {
+      fairSection.style.display = 'block';
+      toggleFairSection.textContent = '🔐 Hide Provably Fair Details';
+    } else {
+      fairSection.style.display = 'none';
+      toggleFairSection.textContent = '🔐 Show Provably Fair Details';
+    }
+  });
   
   verifyBtn.addEventListener("click", () => {
     if (!currentGameData) {
