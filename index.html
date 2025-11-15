@@ -183,6 +183,39 @@ button:disabled {
   transform: translateY(-1px);
 }
 
+.cash-out-btn {
+  background: #4ade80 !important;
+  color: #0a1218 !important;
+  margin-bottom: 14px;
+}
+
+.cash-out-btn:hover:not(:disabled) {
+  background: #22c55e !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(74, 222, 128, 0.4);
+}
+
+.cash-out-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.game-container.ladder-mode {
+  border: 2px solid rgba(14, 165, 233, 0.5);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 40px rgba(14, 165, 233, 0.3);
+  animation: ladderPulse 2s ease-in-out infinite;
+}
+
+@keyframes ladderPulse {
+  0%, 100% {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 40px rgba(14, 165, 233, 0.3);
+  }
+  50% {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 60px rgba(14, 165, 233, 0.5);
+  }
+}
+
 /* ----------- COIN & ANIMATION ----------- */
 .coin-area {
   margin: 24px 0;
@@ -912,7 +945,8 @@ button:disabled {
   <input type="number" id="betAmount" value="10" min="0.10" max="20000" step="0.01" />
 
   <div class="multiplier-row">
-    <div class="multiplier-label">Target Multiplier (Auto-picked: <span id="multDisplay">1.96x</span>)</div>
+    <div class="multiplier-label">Current Multiplier: <span id="multDisplay">1.2x - 10x</span></div>
+    <div class="multiplier-label" id="potentialWinLabel" style="display: none; margin-top: 8px; color: #fbbf24;">Potential Win: <span id="ladderPotentialWin">$0.00</span></div>
   </div>
 
   <div class="choice-row">
@@ -924,6 +958,7 @@ button:disabled {
   </div>
 
   <button id="betButton">Bet</button>
+  <button id="cashOutBtn" class="cash-out-btn" style="display: none;">💰 Cash Out</button>
 
   <div class="coin-area">
     <div class="motion-trail" id="trail"></div>
@@ -936,7 +971,7 @@ button:disabled {
   <div class="error" id="errorText"></div>
 
   <div class="info-line">
-    Dynamic Win-98% RTP
+    50/50 Coin Flip — Standard Ladder Mode (1.2x-10x) — 98% RTP
   </div>
 
   <button class="verify-btn" id="toggleFairSection" style="margin-top: 16px; margin-bottom: 0; background: rgba(14, 165, 233, 0.15); color: #0ea5e9; border: 1px solid rgba(14, 165, 233, 0.3);">
@@ -962,7 +997,7 @@ button:disabled {
       <span class="fair-info-value" id="fairRoll">-</span>
     </div>
     <div class="fair-info-row">
-      <span class="fair-info-label">Win Threshold:</span>
+      <span class="fair-info-label">Chosen Multiplier:</span>
       <span class="fair-info-value" id="fairThreshold">-</span>
     </div>
     <button class="verify-btn" id="verifyBtn">Verify Result Independently</button>
@@ -1104,8 +1139,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const RTP = 0.98;
   const MIN_BET = 0.10;
   const MAX_BET = 20000.00;
-  const MIN_MULTIPLIER = 1.96;
-  const MAX_MULTIPLIER = 10.00;
+  const MAX_MULTIPLIER = 10;
   const API_URL = "/.netlify/functions/play";
   const RAPID_BET_THRESHOLD = 100;
   
@@ -1113,8 +1147,12 @@ document.addEventListener("DOMContentLoaded", () => {
   let isProcessingBet = false;
 
   let balance = 0.00;
-  let selectedMultiplier = 1.96;
   let playerChoice = "heads";
+  
+  let ladderSession = null;
+  let currentBetAmount = 0;
+  let inLadderMode = false;
+  const LADDER_TIERS = [1.5, 2, 3, 4, 5, 7, 10];
   
   let accountStats = {
     totalBets: 0,
@@ -1137,6 +1175,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const balanceDisplay = document.getElementById("balanceDisplay");
   const betAmount = document.getElementById("betAmount");
   const betButton = document.getElementById("betButton");
+  const cashOutBtn = document.getElementById("cashOutBtn");
   const resultText = document.getElementById("resultText");
   const errorText = document.getElementById("errorText");
   const coin = document.getElementById("coin");
@@ -1145,6 +1184,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const trail = document.getElementById("trail");
   const hand = document.getElementById("hand");
   const multDisplay = document.getElementById("multDisplay");
+  const ladderPotentialWin = document.getElementById("ladderPotentialWin");
+  const potentialWinLabel = document.getElementById("potentialWinLabel");
+  const gameContainer = document.querySelector(".game-container");
   
   const fairSection = document.getElementById("fairSection");
   const fairServerHash = document.getElementById("fairServerHash");
@@ -1828,7 +1870,8 @@ document.addEventListener("DOMContentLoaded", () => {
         .reverse()
         .map((game, idx) => {
           const date = new Date(game.timestamp).toLocaleString();
-          return `${idx + 1}. ${date}\n   Bet: $${game.bet.toFixed(2)} | ${game.multiplier}x | ${game.playerChoice}\n   Result: ${game.coinSide} - ${game.didWin ? 'WIN' : 'LOSS'} | ${game.didWin ? '+' : '-'}$${Math.abs(game.payout - game.bet).toFixed(2)}`;
+          const chosenMult = game.chosenMultiplier || game.payoutMultiplier || 1.0;
+          return `${idx + 1}. ${date}\n   Bet: $${game.bet.toFixed(2)} | ${chosenMult.toFixed(2)}x | ${game.playerChoice}\n   Result: ${game.coinSide} - ${game.didWin ? 'WIN' : 'LOSS'} | ${game.didWin ? '+' : '-'}$${Math.abs(game.payout - game.bet).toFixed(2)}`;
         })
         .join('\n\n');
       
@@ -1879,13 +1922,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  function randomMultiplier() {
-    const min = 1.96;
-    const max = 10.00;
-    const random = Math.random();
-    const mult = min + (max - min) * Math.pow(random, 1.5);
-    return Math.round(mult * 100) / 100;
-  }
 
   function formatMoney(v) { 
     return "$" + v.toLocaleString('en-US', {
@@ -1956,6 +1992,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function playRound() {
+    if (inLadderMode) {
+      await handleLadderFlip();
+      return;
+    }
+    
     if (isProcessingBet) {
       errorText.textContent = "Please wait for the current bet to complete";
       return;
@@ -1979,10 +2020,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     
-    if (selectedMultiplier < MIN_MULTIPLIER || selectedMultiplier > MAX_MULTIPLIER) {
-      errorText.textContent = `Multiplier must be between ${MIN_MULTIPLIER}x and ${MAX_MULTIPLIER}x`;
-      return;
-    }
     
     isProcessingBet = true;
     lastBetTime = now;
@@ -2010,8 +2047,7 @@ document.addEventListener("DOMContentLoaded", () => {
     createCoinFlickSound();
     betButton.disabled = true;
 
-    selectedMultiplier = randomMultiplier();
-    multDisplay.textContent = selectedMultiplier + "x";
+    multDisplay.textContent = "1.2x - 10x";
 
     coin.classList.remove('hidden');
     coin.textContent = "";
@@ -2033,7 +2069,6 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         body: JSON.stringify({
           bet: bet,
-          multiplier: selectedMultiplier,
           client_seed: cSeed,
           player_choice: playerChoice
         }),
@@ -2059,68 +2094,28 @@ document.addEventListener("DOMContentLoaded", () => {
       if (DEBUG) {
         console.log('Game result:', {
           bet,
-          multiplier: selectedMultiplier,
-          winChance: data.win_chance,
+          currentMultiplier: data.current_multiplier,
           roll: data.roll,
+          coinSide: data.coin_side,
+          playerChoice: playerChoice,
           didWin: data.did_win,
-          payout: data.payout
+          ladderAvailable: data.ladder_available
         });
       }
 
       setTimeout(() => {
         const coinResult = data.coin_side;
         const didWin = data.did_win;
-        const payout = data.payout;
         
         accountStats.totalBets += 1;
         accountStats.totalWagered += bet;
         
-        const gameRecord = {
-          timestamp: Date.now(),
-          bet,
-          multiplier: selectedMultiplier,
-          playerChoice,
-          coinSide: coinResult,
-          didWin,
-          payout: didWin && payout > 0 ? Math.round(payout * 100) / 100 : 0,
-          roll: data.roll,
-          winChance: data.win_chance,
-          nonce: data.nonce
-        };
+        coin.classList.remove('hidden');
+        coin.textContent = coinResult === "heads" ? "H" : "T";
         
-        accountStats.gameHistory.push(gameRecord);
-        if (accountStats.gameHistory.length > 100) {
-          accountStats.gameHistory = accountStats.gameHistory.slice(-100);
-        }
-
-        if (didWin && payout > 0) {
-          const actualPayout = Math.round(payout * 100) / 100;
-          balance = Math.round((balance + actualPayout) * 100) / 100;
-          accountStats.totalWins += 1;
-          accountStats.netProfit = Math.round((accountStats.netProfit + (actualPayout - bet)) * 100) / 100;
-          addTransaction(`Win - ${coinResult.toUpperCase()}`, actualPayout - bet);
-          updateBal();
-          saveSettings();
-          
-          coin.classList.remove('hidden');
-          coin.textContent = coinResult === "heads" ? "H" : "T";
-          coinLabel.textContent = `${coinResult.charAt(0).toUpperCase() + coinResult.slice(1)} — You win!`;
-          createCheerfulMusic();
-          createCaChingSound();
-
-          const coinRect = coin.getBoundingClientRect();
-          const coinCenterX = coinRect.left + coinRect.width / 2;
-          const coinCenterY = coinRect.top + coinRect.height / 2;
-          spawnFlyingCoins(coinCenterX, coinCenterY, 20);
-
-          resultText.className = "result win";
-          resultText.textContent =
-            `WIN! Landed ${coinResult}, you picked ${playerChoice} — Won ${formatMoney(actualPayout)} at ${selectedMultiplier}x`;
-          multDisplay.style.color = "#4ade80";
-        } else {
+        if (!didWin) {
           accountStats.netProfit = Math.round((accountStats.netProfit - bet) * 100) / 100;
           addTransaction(`Loss - ${coinResult.toUpperCase()}`, -bet);
-          coin.textContent = coinResult === "heads" ? "H" : "T";
           
           const coinRect = coin.getBoundingClientRect();
           const coinCenterX = coinRect.left + coinRect.width / 2;
@@ -2143,13 +2138,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
           resultText.className = "result lose";
           resultText.textContent = `LOSS. Landed ${coinResult}, you picked ${playerChoice}`;
+          multDisplay.textContent = "1.2x - 10x";
           multDisplay.style.color = "#ef4444";
+          
+          if (musicEnabled) {
+            createBackgroundMusic();
+          }
+          betButton.disabled = false;
+          isProcessingBet = false;
+        } else {
+          coinLabel.textContent = `${coinResult.charAt(0).toUpperCase() + coinResult.slice(1)} — You win!`;
+          createCheerfulMusic();
+          createCaChingSound();
+
+          resultText.className = "result win";
+          resultText.textContent = `WIN! Keep picking to increase multiplier or Cash Out`;
+          
+          ladderSession = {
+            sessionId: data.ladder_session_id,
+            currentMultiplier: data.current_multiplier,
+            maxMultiplier: data.max_multiplier || MAX_MULTIPLIER,
+            canContinue: data.can_continue
+          };
+          currentBetAmount = bet;
+          inLadderMode = true;
+          
+          enterLadderMode();
+          isProcessingBet = false;
+          betButton.disabled = false;
         }
         
         saveSettings();
 
         fairnessInfo.textContent =
-          `Server RNG — roll: ${data.roll.toFixed(6)} | win_threshold: ${data.win_chance.toFixed(6)} | ` +
+          `Server RNG — roll: ${data.roll.toFixed(6)} | coin_side: ${data.coin_side} | ` +
           `server_seed_hash: ${data.server_seed_hash.substring(0, 16)}... | nonce: ${data.nonce}`;
         
         currentGameData = {
@@ -2157,9 +2179,10 @@ document.addEventListener("DOMContentLoaded", () => {
           clientSeed: cSeed,
           nonce: data.nonce,
           roll: data.roll,
-          winChance: data.win_chance,
+          coinSide: data.coin_side,
+          playerChoice: playerChoice,
+          currentMultiplier: data.current_multiplier || 1.0,
           bet: bet,
-          multiplier: selectedMultiplier,
           result: didWin ? 'win' : 'loss'
         };
         
@@ -2167,13 +2190,8 @@ document.addEventListener("DOMContentLoaded", () => {
         fairClientSeed.textContent = cSeed;
         fairNonce.textContent = data.nonce;
         fairRoll.textContent = data.roll.toFixed(8);
-        fairThreshold.textContent = data.win_chance.toFixed(8);
-
-        if (musicEnabled) {
-          createBackgroundMusic();
-        }
-        betButton.disabled = false;
-        isProcessingBet = false;
+        const displayMult = data.current_multiplier || 1.0;
+        fairThreshold.textContent = displayMult.toFixed(2) + 'x';
       }, 800);
 
     } catch (error) {
@@ -2206,6 +2224,253 @@ document.addEventListener("DOMContentLoaded", () => {
 
   betButton.addEventListener("click", playRound);
   
+  function getNextTier(currentMult) {
+    for (let tier of LADDER_TIERS) {
+      if (tier > currentMult) {
+        return tier;
+      }
+    }
+    return MAX_MULTIPLIER;
+  }
+  
+  function enterLadderMode() {
+    if (!ladderSession) return;
+    
+    gameContainer.classList.add("ladder-mode");
+    cashOutBtn.style.display = "block";
+    cashOutBtn.disabled = false;
+    betButton.textContent = "Pick Heads/Tails to Climb";
+    betButton.disabled = false;
+    
+    updateLadderDisplay();
+  }
+  
+  function exitLadderMode() {
+    inLadderMode = false;
+    ladderSession = null;
+    currentBetAmount = 0;
+    gameContainer.classList.remove("ladder-mode");
+    cashOutBtn.style.display = "none";
+    betButton.textContent = "Bet";
+    betButton.disabled = false;
+    potentialWinLabel.style.display = "none";
+    multDisplay.textContent = "1.2x - 10x";
+    multDisplay.style.color = "";
+    coinLabel.textContent = "Waiting for bet...";
+  }
+  
+  function updateLadderDisplay() {
+    if (!ladderSession) return;
+    
+    const currentMult = ladderSession.currentMultiplier;
+    const potentialWin = Math.round(currentBetAmount * currentMult * 100) / 100;
+    
+    multDisplay.textContent = `${currentMult.toFixed(2)}x`;
+    multDisplay.style.color = "#4ade80";
+    ladderPotentialWin.textContent = formatMoney(potentialWin);
+    potentialWinLabel.style.display = "block";
+    coinLabel.textContent = `Pick heads/tails to climb or cash out at ${currentMult.toFixed(2)}x`;
+    
+    if (currentMult >= MAX_MULTIPLIER) {
+      betButton.disabled = true;
+      betButton.textContent = "MAX - Cash Out Only";
+    }
+  }
+  
+  async function handleLadderFlip() {
+    if (!ladderSession) return;
+    if (isProcessingBet) return;
+    
+    isProcessingBet = true;
+    errorText.textContent = "";
+    resultText.textContent = "";
+    
+    cashOutBtn.disabled = true;
+    betButton.disabled = true;
+    
+    coin.classList.remove("tossing");
+    hand.classList.remove("flicking");
+    void coin.offsetWidth;
+    void hand.offsetWidth;
+    hand.classList.add("flicking");
+    coin.classList.add("tossing");
+    playTrail();
+    createCoinFlickSound();
+    createSuspenseMusic();
+    
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          mode: 'ladder_step',
+          ladder_session_id: ladderSession.sessionId
+        }),
+        signal: AbortSignal.timeout(5000)
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to process ladder step');
+      }
+      
+      const data = await response.json();
+      
+      setTimeout(() => {
+        if (data.did_win_ladder_step) {
+          ladderSession.currentMultiplier = data.current_multiplier;
+          updateLadderDisplay();
+          
+          resultText.className = "result win";
+          resultText.textContent = `Success! Climbed to ${data.current_multiplier.toFixed(2)}x — Keep going or Cash Out`;
+          
+          createCheerfulMusic();
+          createCaChingSound();
+          
+          cashOutBtn.disabled = false;
+          if (data.current_multiplier < MAX_MULTIPLIER) {
+            betButton.disabled = false;
+          }
+          
+          isProcessingBet = false;
+          
+          if (musicEnabled) {
+            createBackgroundMusic();
+          }
+        } else {
+          const coinRect = coin.getBoundingClientRect();
+          const coinCenterX = coinRect.left + coinRect.width / 2;
+          const coinCenterY = coinRect.top + coinRect.height / 2;
+          
+          const coinArea = document.querySelector('.coin-area');
+          const coinAreaRect = coinArea.getBoundingClientRect();
+          const relativeCenterX = coinCenterX - coinAreaRect.left;
+          const relativeCenterY = coinCenterY - coinAreaRect.top;
+          
+          createSmokePuff(relativeCenterX, relativeCenterY);
+          
+          setTimeout(() => {
+            coin.classList.add('hidden');
+          }, 100);
+          
+          resultText.className = "result lose";
+          resultText.textContent = `Busted! Lost the ladder — No payout`;
+          multDisplay.textContent = "BUST";
+          multDisplay.style.color = "#ef4444";
+          coinLabel.textContent = "Busted — Lost everything!";
+          
+          createSadMusic();
+          createWompSound();
+          
+          const gameRecord = {
+            timestamp: Date.now(),
+            bet: currentBetAmount,
+            chosenMultiplier: 0,
+            playerChoice,
+            coinSide: "ladder_bust",
+            didWin: false,
+            payout: 0,
+            roll: 0,
+            nonce: 0
+          };
+          
+          accountStats.gameHistory.push(gameRecord);
+          if (accountStats.gameHistory.length > 100) {
+            accountStats.gameHistory = accountStats.gameHistory.slice(-100);
+          }
+          
+          saveSettings();
+          
+          exitLadderMode();
+          isProcessingBet = false;
+          
+          if (musicEnabled) {
+            createBackgroundMusic();
+          }
+        }
+      }, 800);
+    } catch (error) {
+      errorText.textContent = `Error processing ladder step: ${error.message}`;
+      cashOutBtn.disabled = false;
+      betButton.disabled = false;
+      isProcessingBet = false;
+    }
+  }
+  
+  cashOutBtn.addEventListener("click", async () => {
+    if (!ladderSession) return;
+    
+    cashOutBtn.disabled = true;
+    betButton.disabled = true;
+    
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          mode: 'cash_out',
+          ladder_session_id: ladderSession.sessionId
+        }),
+        signal: AbortSignal.timeout(5000)
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to cash out');
+      }
+      
+      const data = await response.json();
+      const finalPayout = data.final_payout;
+      const finalMultiplier = data.final_multiplier;
+      
+      balance = Math.round((balance + finalPayout) * 100) / 100;
+      accountStats.totalWins += 1;
+      accountStats.netProfit = Math.round((accountStats.netProfit + (finalPayout - currentBetAmount)) * 100) / 100;
+      addTransaction(`Ladder Cash Out (${finalMultiplier.toFixed(2)}x)`, finalPayout - currentBetAmount);
+      
+      const gameRecord = {
+        timestamp: Date.now(),
+        bet: currentBetAmount,
+        chosenMultiplier: finalMultiplier,
+        playerChoice,
+        coinSide: "ladder_cashout",
+        didWin: true,
+        payout: finalPayout,
+        roll: 0,
+        nonce: 0
+      };
+      
+      accountStats.gameHistory.push(gameRecord);
+      if (accountStats.gameHistory.length > 100) {
+        accountStats.gameHistory = accountStats.gameHistory.slice(-100);
+      }
+      
+      updateBal();
+      saveSettings();
+      
+      resultText.className = "result win";
+      resultText.textContent = `Cashed Out! Won ${formatMoney(finalPayout)} (${finalMultiplier.toFixed(2)}x multiplier)`;
+      
+      const coinRect = coin.getBoundingClientRect();
+      const coinCenterX = coinRect.left + coinRect.width / 2;
+      const coinCenterY = coinRect.top + coinRect.height / 2;
+      spawnFlyingCoins(coinCenterX, coinCenterY, 15);
+      createCaChingSound();
+      
+      exitLadderMode();
+      
+      if (musicEnabled) {
+        createBackgroundMusic();
+      }
+    } catch (error) {
+      errorText.textContent = `Error cashing out: ${error.message}`;
+      cashOutBtn.disabled = false;
+      betButton.disabled = false;
+    }
+  });
+  
   toggleFairSection.addEventListener("click", () => {
     fairSectionVisible = !fairSectionVisible;
     if (fairSectionVisible) {
@@ -2235,11 +2500,12 @@ Nonce: ${currentGameData.nonce}
 Results:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Roll: ${currentGameData.roll.toFixed(8)}
-Win Threshold: ${currentGameData.winChance.toFixed(8)}
+Coin Side: ${currentGameData.coinSide}
+Player Choice: ${currentGameData.playerChoice}
 Result: ${currentGameData.result.toUpperCase()}
 
 Bet: $${currentGameData.bet.toFixed(2)}
-Multiplier: ${currentGameData.multiplier}x
+Chosen Multiplier: ${currentGameData.chosenMultiplier.toFixed(2)}x
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Verification Formula:
