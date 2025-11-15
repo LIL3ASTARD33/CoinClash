@@ -20,6 +20,19 @@ body {
   align-items: center;
   min-height: 100vh;
   margin: 0;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.background-cityscape {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40vh;
+  z-index: 0;
+  opacity: 0.15;
+  pointer-events: none;
 }
 
 .game-container {
@@ -31,6 +44,8 @@ body {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
 }
 h1 {
   text-align: center;
@@ -566,6 +581,9 @@ button:disabled {
   gap: 12px;
   margin-top: 16px;
 }
+.action-buttons > :nth-child(5) {
+  grid-column: span 2;
+}
 .action-btn {
   padding: 12px;
   border-radius: 8px;
@@ -616,10 +634,129 @@ button:disabled {
   border-color: rgba(255, 255, 255, 0.2);
 }
 
+/* ----------- WIN & LOSS ANIMATIONS ----------- */
+.flying-coin {
+  position: fixed;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  pointer-events: none;
+  z-index: 9999;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  animation: coinFly 1.5s ease-out forwards;
+}
+
+.flying-coin.gold {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  border: 2px solid rgba(251, 191, 36, 0.6);
+}
+
+.flying-coin.silver {
+  background: linear-gradient(135deg, #d1d5db, #9ca3af);
+  border: 2px solid rgba(156, 163, 175, 0.6);
+}
+
+@keyframes coinFly {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) rotate(720deg) scale(0.5);
+    opacity: 0;
+  }
+}
+
+.smoke-puff {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(150, 150, 150, 0.6), transparent);
+  pointer-events: none;
+  z-index: 100;
+  animation: smokePuff 0.8s ease-out forwards;
+}
+
+@keyframes smokePuff {
+  0% {
+    transform: scale(0.3);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.coin.hidden {
+  opacity: 0;
+  transform: scale(0);
+}
+
 </style>
 </head>
 
 <body>
+<svg class="background-cityscape" viewBox="0 0 1200 400" preserveAspectRatio="xMidYMax slice">
+  <defs>
+    <linearGradient id="skyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f1923;stop-opacity:0" />
+      <stop offset="100%" style="stop-color:#1a2c38;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Buildings silhouettes -->
+  <rect x="0" y="200" width="100" height="200" fill="#0a1218" />
+  <rect x="100" y="150" width="120" height="250" fill="#08101a" />
+  <rect x="220" y="180" width="80" height="220" fill="#0a1218" />
+  <rect x="300" y="120" width="100" height="280" fill="#08101a" />
+  <rect x="400" y="170" width="90" height="230" fill="#0a1218" />
+  <rect x="490" y="100" width="110" height="300" fill="#08101a" />
+  <rect x="600" y="140" width="95" height="260" fill="#0a1218" />
+  <rect x="695" y="190" width="85" height="210" fill="#08101a" />
+  <rect x="780" y="130" width="100" height="270" fill="#0a1218" />
+  <rect x="880" y="160" width="90" height="240" fill="#08101a" />
+  <rect x="970" y="110" width="105" height="290" fill="#0a1218" />
+  <rect x="1075" y="180" width="125" height="220" fill="#08101a" />
+  
+  <!-- Windows (small rectangles) -->
+  <rect x="110" y="170" width="8" height="10" fill="#fbbf24" opacity="0.3" />
+  <rect x="125" y="170" width="8" height="10" fill="#fbbf24" opacity="0.5" />
+  <rect x="140" y="170" width="8" height="10" fill="#fbbf24" opacity="0.3" />
+  <rect x="110" y="190" width="8" height="10" fill="#fbbf24" opacity="0.4" />
+  <rect x="140" y="190" width="8" height="10" fill="#fbbf24" opacity="0.2" />
+  
+  <rect x="320" y="140" width="8" height="10" fill="#fbbf24" opacity="0.4" />
+  <rect x="335" y="140" width="8" height="10" fill="#fbbf24" opacity="0.6" />
+  <rect x="350" y="140" width="8" height="10" fill="#fbbf24" opacity="0.3" />
+  <rect x="320" y="160" width="8" height="10" fill="#fbbf24" opacity="0.5" />
+  <rect x="350" y="160" width="8" height="10" fill="#fbbf24" opacity="0.4" />
+  
+  <rect x="510" y="120" width="8" height="10" fill="#fbbf24" opacity="0.5" />
+  <rect x="525" y="120" width="8" height="10" fill="#fbbf24" opacity="0.3" />
+  <rect x="540" y="120" width="8" height="10" fill="#fbbf24" opacity="0.6" />
+  <rect x="510" y="140" width="8" height="10" fill="#fbbf24" opacity="0.4" />
+  <rect x="540" y="140" width="8" height="10" fill="#fbbf24" opacity="0.3" />
+  
+  <rect x="800" y="150" width="8" height="10" fill="#fbbf24" opacity="0.4" />
+  <rect x="815" y="150" width="8" height="10" fill="#fbbf24" opacity="0.5" />
+  <rect x="830" y="150" width="8" height="10" fill="#fbbf24" opacity="0.3" />
+  
+  <rect x="990" y="130" width="8" height="10" fill="#fbbf24" opacity="0.5" />
+  <rect x="1005" y="130" width="8" height="10" fill="#fbbf24" opacity="0.4" />
+  <rect x="1020" y="130" width="8" height="10" fill="#fbbf24" opacity="0.6" />
+  
+  <!-- Overlay gradient -->
+  <rect x="0" y="0" width="1200" height="400" fill="url(#skyGradient)" />
+</svg>
+
 <div class="game-container">
   <div class="header-buttons">
     <button class="account-toggle" id="accountToggle">👤</button>
@@ -629,7 +766,7 @@ button:disabled {
 
   <div class="balance-row">
     <span>Balance:</span>
-    <span class="balance-value" id="balanceDisplay">$1,000.00</span>
+    <span class="balance-value" id="balanceDisplay">$0.00</span>
   </div>
 
   <label>Bet Amount</label>
@@ -657,7 +794,7 @@ button:disabled {
     <div class="motion-trail" id="trail"></div>
     <div class="hand" id="hand">👆</div>
     <div class="coin" id="coin">?</div>
-    <div class="coin-label" id="coinLabel">Waiting for bet...</div>
+    <div class="coin-label" id="coinLabel">Deposit funds to start playing...</div>
   </div>
 
   <div class="result" id="resultText"></div>
@@ -681,7 +818,7 @@ button:disabled {
       <h3>Account Overview</h3>
       <div class="account-info-row">
         <span class="account-info-label">Current Balance</span>
-        <span class="account-info-value highlight" id="accountBalance">$1,000.00</span>
+        <span class="account-info-value highlight" id="accountBalance">$0.00</span>
       </div>
       <div class="account-info-row">
         <span class="account-info-label">Account ID</span>
@@ -728,6 +865,7 @@ button:disabled {
       <h3>Quick Actions</h3>
       <div class="action-buttons">
         <button class="action-btn primary" id="quickDeposit">💰 Deposit</button>
+        <button class="action-btn primary" id="quickWithdraw">💸 Withdraw</button>
         <button class="action-btn" id="viewHistory">📊 History</button>
         <button class="action-btn" id="resetStats">🔄 Reset Stats</button>
         <button class="action-btn" id="exportData">📥 Export</button>
@@ -767,10 +905,21 @@ button:disabled {
       <h3>Audio</h3>
       <div class="slider-group">
         <label>
-          <span>Volume</span>
+          <span>Sound Effects Volume</span>
           <span id="volumeDisplay">100%</span>
         </label>
         <input type="range" id="volumeSlider" min="0" max="100" value="100" />
+      </div>
+      <div class="slider-group">
+        <label>
+          <span>Background Music Volume</span>
+          <span id="musicVolumeDisplay">100%</span>
+        </label>
+        <input type="range" id="musicVolumeSlider" min="0" max="100" value="100" />
+      </div>
+      <div class="color-input-group" style="margin-top: 10px;">
+        <label>Background Music</label>
+        <button id="musicToggle" style="width: auto; padding: 8px 16px; margin: 0; font-size: 14px;">ON</button>
       </div>
     </div>
 
@@ -793,7 +942,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const MAX_BET = 20000.00;
   const API_URL = "/.netlify/functions/play";
 
-  let balance = 1000.00;
+  let balance = 0.00;
   let selectedMultiplier = 1.96;
   let playerChoice = "heads";
   
@@ -829,6 +978,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const transactionList = document.getElementById("transactionList");
   const memberSince = document.getElementById("memberSince");
   const quickDeposit = document.getElementById("quickDeposit");
+  const quickWithdraw = document.getElementById("quickWithdraw");
   const viewHistory = document.getElementById("viewHistory");
   const resetStats = document.getElementById("resetStats");
   const exportData = document.getElementById("exportData");
@@ -931,7 +1081,198 @@ document.addEventListener("DOMContentLoaded", () => {
     oscillator.stop(now + 0.5);
   }
 
+  function createBackgroundMusic() {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    
+    const chordNotes = [
+      [262, 330, 392],
+      [294, 370, 440],
+      [247, 311, 370],
+      [262, 330, 392]
+    ];
+    
+    let currentChord = 0;
+    const chordDuration = 4;
+    
+    function playChord() {
+      if (!isMusicPlaying || !musicEnabled) return;
+      
+      const now = audioContext.currentTime;
+      const notes = chordNotes[currentChord % chordNotes.length];
+      
+      notes.forEach((freq, idx) => {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        const filter = audioContext.createBiquadFilter();
+        
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioContext.destination);
+        
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now);
+        
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(1200, now);
+        filter.Q.value = 1;
+        
+        const baseGain = 0.04 * musicVolume;
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(baseGain, now + 0.5);
+        gain.gain.setValueAtTime(baseGain, now + chordDuration - 0.5);
+        gain.gain.linearRampToValueAtTime(0, now + chordDuration);
+        
+        osc.start(now);
+        osc.stop(now + chordDuration);
+      });
+      
+      currentChord++;
+      setTimeout(playChord, chordDuration * 1000);
+    }
+    
+    isMusicPlaying = true;
+    playChord();
+  }
+
+  function stopBackgroundMusic() {
+    isMusicPlaying = false;
+  }
+
+  function createSuspenseMusic() {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const now = audioContext.currentTime;
+    
+    const duration = 1.2;
+    
+    const osc1 = audioContext.createOscillator();
+    const osc2 = audioContext.createOscillator();
+    const gain1 = audioContext.createGain();
+    const gain2 = audioContext.createGain();
+    const mainGain = audioContext.createGain();
+    
+    osc1.connect(gain1);
+    osc2.connect(gain2);
+    gain1.connect(mainGain);
+    gain2.connect(mainGain);
+    mainGain.connect(audioContext.destination);
+    
+    osc1.type = 'sine';
+    osc2.type = 'triangle';
+    
+    osc1.frequency.setValueAtTime(200, now);
+    osc1.frequency.linearRampToValueAtTime(400, now + duration);
+    
+    osc2.frequency.setValueAtTime(300, now);
+    osc2.frequency.linearRampToValueAtTime(600, now + duration);
+    
+    gain1.gain.setValueAtTime(0.15 * masterVolume, now);
+    gain1.gain.linearRampToValueAtTime(0.25 * masterVolume, now + duration * 0.7);
+    gain1.gain.exponentialRampToValueAtTime(0.01, now + duration);
+    
+    gain2.gain.setValueAtTime(0.1 * masterVolume, now);
+    gain2.gain.linearRampToValueAtTime(0.2 * masterVolume, now + duration * 0.7);
+    gain2.gain.exponentialRampToValueAtTime(0.01, now + duration);
+    
+    osc1.start(now);
+    osc2.start(now);
+    osc1.stop(now + duration);
+    osc2.stop(now + duration);
+  }
+
+  function createCheerfulMusic() {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const now = audioContext.currentTime;
+    
+    const melody = [523, 587, 659, 784, 880];
+    
+    melody.forEach((freq, idx) => {
+      const startTime = now + (idx * 0.12);
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      
+      osc.connect(gain);
+      gain.connect(audioContext.destination);
+      
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, startTime);
+      
+      gain.gain.setValueAtTime(0.25 * masterVolume, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.3);
+      
+      osc.start(startTime);
+      osc.stop(startTime + 0.3);
+    });
+  }
+
+  function createSadMusic() {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const now = audioContext.currentTime;
+    
+    const melody = [440, 392, 349, 330, 294];
+    
+    melody.forEach((freq, idx) => {
+      const startTime = now + (idx * 0.15);
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      
+      osc.connect(gain);
+      gain.connect(audioContext.destination);
+      
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, startTime);
+      
+      gain.gain.setValueAtTime(0.2 * masterVolume, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.4);
+      
+      osc.start(startTime);
+      osc.stop(startTime + 0.4);
+    });
+  }
+
+  function spawnFlyingCoins(centerX, centerY, count = 15) {
+    for (let i = 0; i < count; i++) {
+      const coin = document.createElement('div');
+      coin.className = `flying-coin ${i % 2 === 0 ? 'gold' : 'silver'}`;
+      coin.textContent = i % 2 === 0 ? '💰' : '🪙';
+      
+      const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.5;
+      const distance = 200 + Math.random() * 400;
+      const tx = Math.cos(angle) * distance;
+      const ty = Math.sin(angle) * distance - 100;
+      
+      coin.style.left = `${centerX}px`;
+      coin.style.top = `${centerY}px`;
+      coin.style.setProperty('--tx', `${tx}px`);
+      coin.style.setProperty('--ty', `${ty}px`);
+      
+      document.body.appendChild(coin);
+      
+      setTimeout(() => {
+        coin.remove();
+      }, 1500);
+    }
+  }
+
+  function createSmokePuff(centerX, centerY) {
+    const smoke = document.createElement('div');
+    smoke.className = 'smoke-puff';
+    smoke.style.left = `${centerX - 60}px`;
+    smoke.style.top = `${centerY - 60}px`;
+    
+    const coinArea = document.querySelector('.coin-area');
+    coinArea.appendChild(smoke);
+    
+    setTimeout(() => {
+      smoke.remove();
+    }, 800);
+  }
+
+
   let masterVolume = 1.0;
+  let musicVolume = 1.0;
+  let backgroundMusic = null;
+  let isMusicPlaying = false;
+  let musicEnabled = true;
 
   // Settings management
   const settingsToggle = document.getElementById("settingsToggle");
@@ -943,6 +1284,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const colorAccent = document.getElementById("colorAccent");
   const volumeSlider = document.getElementById("volumeSlider");
   const volumeDisplay = document.getElementById("volumeDisplay");
+  const musicVolumeSlider = document.getElementById("musicVolumeSlider");
+  const musicVolumeDisplay = document.getElementById("musicVolumeDisplay");
+  const musicToggle = document.getElementById("musicToggle");
   const depositAmount = document.getElementById("depositAmount");
   const depositBtn = document.getElementById("depositBtn");
   const halfBet = document.getElementById("halfBet");
@@ -976,6 +1320,15 @@ document.addEventListener("DOMContentLoaded", () => {
         volumeSlider.value = settings.volume;
         volumeDisplay.textContent = settings.volume + "%";
       }
+      if (settings.musicVolume !== undefined) {
+        musicVolume = settings.musicVolume / 100;
+        musicVolumeSlider.value = settings.musicVolume;
+        musicVolumeDisplay.textContent = settings.musicVolume + "%";
+      }
+      if (settings.musicEnabled !== undefined) {
+        musicEnabled = settings.musicEnabled;
+        musicToggle.textContent = musicEnabled ? "ON" : "OFF";
+      }
       if (settings.balance !== undefined) {
         balance = settings.balance;
         updateBal();
@@ -996,6 +1349,8 @@ document.addEventListener("DOMContentLoaded", () => {
       colorText: colorText.value,
       colorAccent: colorAccent.value,
       volume: parseInt(volumeSlider.value),
+      musicVolume: parseInt(musicVolumeSlider.value),
+      musicEnabled: musicEnabled,
       balance: balance,
       accountStats: accountStats
     };
@@ -1067,15 +1422,45 @@ document.addEventListener("DOMContentLoaded", () => {
     saveSettings();
   });
 
+  musicVolumeSlider.addEventListener("input", (e) => {
+    const vol = parseInt(e.target.value);
+    musicVolume = vol / 100;
+    musicVolumeDisplay.textContent = vol + "%";
+    saveSettings();
+  });
+
+  musicToggle.addEventListener("click", () => {
+    musicEnabled = !musicEnabled;
+    musicToggle.textContent = musicEnabled ? "ON" : "OFF";
+    
+    if (musicEnabled) {
+      createBackgroundMusic();
+    } else {
+      stopBackgroundMusic();
+    }
+    
+    saveSettings();
+  });
+
   depositBtn.addEventListener("click", () => {
     const amount = parseFloat(depositAmount.value);
-    if (!isNaN(amount) && amount > 0) {
-      balance += amount;
-      addTransaction("Deposit", amount);
-      updateBal();
-      depositAmount.value = "";
-      saveSettings();
+    if (isNaN(amount)) {
+      alert("Please enter a valid deposit amount.");
+      return;
     }
+    if (amount < 1) {
+      alert("Minimum deposit is $1.00");
+      return;
+    }
+    if (amount > 20000) {
+      alert("Maximum deposit is $20,000.00");
+      return;
+    }
+    balance += amount;
+    addTransaction("Deposit", amount);
+    updateBal();
+    depositAmount.value = "";
+    saveSettings();
   });
 
   halfBet.addEventListener("click", () => {
@@ -1091,6 +1476,10 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   loadSettings();
+  
+  if (musicEnabled) {
+    createBackgroundMusic();
+  }
   
   function updateAccountStats() {
     accountBalance.textContent = formatMoney(balance);
@@ -1157,6 +1546,27 @@ document.addEventListener("DOMContentLoaded", () => {
     settingsModal.classList.add("active");
   });
   
+  quickWithdraw.addEventListener("click", () => {
+    const amount = parseFloat(prompt("Enter withdrawal amount:"));
+    if (isNaN(amount)) {
+      alert("Please enter a valid withdrawal amount.");
+      return;
+    }
+    if (amount <= 0) {
+      alert("Withdrawal amount must be greater than $0.00");
+      return;
+    }
+    if (amount > balance) {
+      alert("Insufficient balance for this withdrawal.");
+      return;
+    }
+    balance -= amount;
+    addTransaction("Withdrawal", -amount);
+    updateBal();
+    saveSettings();
+    alert(`Successfully withdrew ${formatMoney(amount)}`);
+  });
+  
   viewHistory.addEventListener("click", () => {
     alert("Full history view coming soon!");
   });
@@ -1214,6 +1624,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (accountBalance) {
       accountBalance.textContent = formatMoney(balance);
     }
+    if (balance > 0 && coinLabel.textContent === "Deposit funds to start playing...") {
+      coinLabel.textContent = "Waiting for bet...";
+    } else if (balance === 0) {
+      coinLabel.textContent = "Deposit funds to start playing...";
+    }
   }
   updateBal();
 
@@ -1228,6 +1643,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function validateBet(bet) {
+    if (balance === 0) {
+      return { valid: false, error: "Please deposit between $1.00 and $20,000.00 to start playing" };
+    }
     if (isNaN(bet)) {
       return { valid: false, error: "Bet must be a valid number" };
     }
@@ -1264,12 +1682,15 @@ document.addEventListener("DOMContentLoaded", () => {
     updateBal();
     saveSettings();
     
+    stopBackgroundMusic();
+    createSuspenseMusic();
     createCoinFlickSound();
     betButton.disabled = true;
 
     selectedMultiplier = randomMultiplier();
     multDisplay.textContent = selectedMultiplier + "x";
 
+    coin.classList.remove('hidden');
     coin.textContent = "";
     coin.classList.remove("tossing");
     hand.classList.remove("flicking");
@@ -1329,9 +1750,16 @@ document.addEventListener("DOMContentLoaded", () => {
           updateBal();
           saveSettings();
           
+          coin.classList.remove('hidden');
           coin.textContent = coinResult === "heads" ? "H" : "T";
           coinLabel.textContent = `${coinResult.charAt(0).toUpperCase() + coinResult.slice(1)} — You win!`;
+          createCheerfulMusic();
           createCaChingSound();
+
+          const coinRect = coin.getBoundingClientRect();
+          const coinCenterX = coinRect.left + coinRect.width / 2;
+          const coinCenterY = coinRect.top + coinRect.height / 2;
+          spawnFlyingCoins(coinCenterX, coinCenterY, 20);
 
           resultText.className = "result win";
           resultText.textContent =
@@ -1342,7 +1770,23 @@ document.addEventListener("DOMContentLoaded", () => {
           addTransaction(`Loss - ${coinResult.toUpperCase()}`, -bet);
           coin.textContent = coinResult === "heads" ? "H" : "T";
           
+          const coinRect = coin.getBoundingClientRect();
+          const coinCenterX = coinRect.left + coinRect.width / 2;
+          const coinCenterY = coinRect.top + coinRect.height / 2;
+          
+          const coinArea = document.querySelector('.coin-area');
+          const coinAreaRect = coinArea.getBoundingClientRect();
+          const relativeCenterX = coinCenterX - coinAreaRect.left;
+          const relativeCenterY = coinCenterY - coinAreaRect.top;
+          
+          createSmokePuff(relativeCenterX, relativeCenterY);
+          
+          setTimeout(() => {
+            coin.classList.add('hidden');
+          }, 100);
+          
           coinLabel.textContent = `${coinResult.charAt(0).toUpperCase() + coinResult.slice(1)} — You lose.`;
+          createSadMusic();
           createWompSound();
 
           resultText.className = "result lose";
@@ -1356,6 +1800,9 @@ document.addEventListener("DOMContentLoaded", () => {
           `Server RNG — roll: ${data.roll.toFixed(6)} | win_threshold: ${data.win_chance.toFixed(6)} | ` +
           `server_seed_hash: ${data.server_seed_hash.substring(0, 16)}... | nonce: ${data.nonce}`;
 
+        if (musicEnabled) {
+          createBackgroundMusic();
+        }
         betButton.disabled = false;
       }, 1200);
 
@@ -1371,6 +1818,9 @@ document.addEventListener("DOMContentLoaded", () => {
         coin.classList.remove("tossing");
         hand.classList.remove("flicking");
         coinLabel.textContent = "Error occurred - bet refunded";
+        if (musicEnabled) {
+          createBackgroundMusic();
+        }
       }, 1200);
     }
   }
