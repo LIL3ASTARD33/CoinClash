@@ -1483,7 +1483,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
   function updateAccountStats() {
     accountBalance.textContent = formatMoney(balance);
-    totalBets.textContent = accountStats.totalBets;
+    totalBets.textContent = formatNumber(accountStats.totalBets);
     totalWagered.textContent = formatMoney(accountStats.totalWagered);
     
     const winRatePercent = accountStats.totalBets > 0 
@@ -1618,7 +1618,17 @@ document.addEventListener("DOMContentLoaded", () => {
     return Math.round(mult * 100) / 100;
   }
 
-  function formatMoney(v) { return "$" + v.toFixed(2); }
+  function formatMoney(v) { 
+    return "$" + v.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+  
+  function formatNumber(v) {
+    return v.toLocaleString('en-US');
+  }
+  
   function updateBal() { 
     balanceDisplay.textContent = formatMoney(balance);
     if (accountBalance) {
