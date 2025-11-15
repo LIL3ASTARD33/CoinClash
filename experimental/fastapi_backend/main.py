@@ -1,3 +1,14 @@
+"""
+OPTIONAL EXPERIMENTAL FASTAPI BACKEND
+
+This is an alternative backend implementation using FastAPI.
+It is NOT used by the current deployed version.
+
+The main deployment uses Netlify Functions (netlify/functions/play.js).
+This FastAPI backend is provided for those who want to deploy on
+platforms like Render, Railway, or other Python-based hosting.
+"""
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, validator
@@ -24,7 +35,7 @@ app.add_middleware(
 MIN_BET = 0.10
 MAX_BET = 20000.00
 MIN_MULTIPLIER = 1.96
-MAX_MULTIPLIER = 10000.00
+MAX_MULTIPLIER = 10.00
 RTP = 0.98
 
 SERVER_SEED = "super_secret_server_seed_change_me"
